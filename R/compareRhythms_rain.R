@@ -32,47 +32,46 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
 
   group_id <- base::unique(exp_design$group)
 
-  exp_design_A <- base::subset(exp_design, group == group_id[1])
+  exp_design_A <- exp_design[exp_design$group == group_id[1], ]
 
   exp_design_A <- exp_design_A[base::order(exp_design_A$time), ]
 
-  exp_design_B <- base::subset(exp_design, group == group_id[2])
+  exp_design_B <- exp_design[exp_design$group == group_id[2], ]
 
   exp_design_B <- exp_design_B[base::order(exp_design_B$time), ]
 
-  deltat_A <- exp_design_A %$% base::unique(time) %>%
-                  diff %>%
-                  min
-
+  deltat_A <- min(diff(base::unique(exp_design_A$time)))
 
   time_A <- base::seq(min(exp_design_A$time),
                       max(exp_design_A$time),
                       by = deltat_A)
 
-  measure_sequence_A <- base::table(exp_design_A$time) %>% {
-                        base::vapply(time_A,
-                                     function(t) ifelse(any(names(.) == t),
-                                             .[names(.) == t],
-                                             0),
-                                     integer(1)
-                                     )
-                          }
+  unique_times_A <- base::table(exp_design_A$time)
 
-  deltat_B <- exp_design_B %$% base::unique(time) %>%
-              diff %>%
-              min
+  measure_sequence_A <- base::vapply(time_A,
+                                     function(t) {
+                                       ifelse(any(names(unique_times_A) == t),
+                                              unique_times_A[names(unique_times_A) == t],
+                                              0)
+                                     },
+                                     integer(1))
 
+
+  deltat_B <- min(diff(base::unique(exp_design_B$time)))
 
   time_B <- base::seq(min(exp_design_B$time),
                       max(exp_design_B$time),
                       by = deltat_B)
 
-  measure_sequence_B <- base::table(exp_design_B$time) %>% {
-                        base::vapply(time_B,
-                                     function(t) ifelse(any(names(.) == t),
-                                                   .[names(.) == t], 0),
+  unique_times_B <- base::table(exp_design_B$time)
+
+  measure_sequence_B <- base::vapply(time_B,
+                                     function(t) {
+                                       ifelse(any(names(unique_times_B) == t),
+                                              unique_times_B[names(unique_times_B) == t],
+                                              0)
+                                     },
                                      integer(1))
-                        }
 
 
   y_A <- y[, exp_design_A$col_number]
@@ -84,10 +83,9 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   rain_B <- rain::rain(t(y_B), deltat_B, period,
                        measure.sequence = measure_sequence_B)
 
-  rain_results <- data.frame(p_val_adjust_A = p.adjust(rain_A[, "pVal"],
-                                                       method = "BH"),
-                             p_val_adjust_B = p.adjust(rain_B[, "pVal"],
-                                                       method = "BH"))
+  rain_results <- data.frame(stats::p.adjust(rain_A[, "pVal"], method = "BH"),
+                             stats::p.adjust(rain_B[, "pVal"], method = "BH"))
+  colnames(rain_results) <- c("p_val_adjust_A", "p_val_adjust_B")
 
 
   circ_params_A <- compute_circ_params(y_A, exp_design_A$time, period = period)
@@ -95,10 +93,10 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   circ_params_B <- compute_circ_params(y_B, exp_design_B$time, period = period)
 
   rhythmic_in_A <- (rain_results$p_val_adjust_A < rhythm_fdr) &
-                    (circ_params_A[, "amps"] > amp_cutoff)
+    (circ_params_A[, "amps"] > amp_cutoff)
 
   rhythmic_in_B <- (rain_results$p_val_adjust_B < rhythm_fdr) &
-                    (circ_params_B[, "amps"] > amp_cutoff)
+    (circ_params_B[, "amps"] > amp_cutoff)
 
   rhythmic_in_either <- rhythmic_in_A | rhythmic_in_B
 
@@ -107,31 +105,29 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   }
 
   dodr_results <- DODR::robustDODR(t(y_A[rhythmic_in_either, ]),
-                             t(y_B[rhythmic_in_either, ]),
-                             times1 = exp_design_A$time,
-                             times2 = exp_design_B$time,
-                             norm = TRUE,
-                             period = period) %>%
-                  base::transform(p_val_adjust = p.adjust(p.value,
-                                                          method = "BH"))
+                                   t(y_B[rhythmic_in_either, ]),
+                                   times1 = exp_design_A$time,
+                                   times2 = exp_design_B$time,
+                                   norm = TRUE,
+                                   period = period)
+  dodr_results$p_val_adjust = stats::p.adjust(dodr_results$p.value, method = "BH")
 
   results <- data.frame(symbol = rownames(y_A)[rhythmic_in_either],
                         rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
                         rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
-                        diff_rhythmic = dodr_results$p_val_adjust < compare_fdr) %>%
-             magrittr::set_rownames(NULL)
+                        diff_rhythmic = dodr_results$p_val_adjust < compare_fdr)
+  rownames(results) <- NULL
 
   if (include_pvals) {
-    results <- transform(results,
-                         p_val_adjust_A = p_val_adjust_A[rhythmic_in_either],
-                         p_val_adjust_B = p_val_adjust_B[rhythmic_in_either],
-                         p_val_adjust_dodr = dodr_results$p_value_adjust,
-                         amp_A = circ_params_A[rhythmic_in_either, "amps"],
-                         amp_B = circ_params_B[rhythmic_in_either, "amps"],
-                         phase_A = circ_params_A[rhythmic_in_either, "phases"],
-                         phase_B = circ_params_B[rhythmic_in_either, "phases"])
+    results$p_val_adjust_A = p_val_adjust_A[rhythmic_in_either]
+    results$p_val_adjust_B = p_val_adjust_B[rhythmic_in_either]
+    results$p_val_adjust_dodr = dodr_results$p_value_adjust
+    results$amp_A = circ_params_A[rhythmic_in_either, "amps"]
+    results$amp_B = circ_params_B[rhythmic_in_either, "amps"]
+    results$phase_A = circ_params_A[rhythmic_in_either, "phases"]
+    results$phase_B = circ_params_B[rhythmic_in_either, "phases"]
 
   }
 
- return(results)
+  return(results)
 }

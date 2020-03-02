@@ -30,18 +30,14 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
 
   group_id <- base::unique(exp_design$group)
 
-  exp_design <- exp_design %>%
-    base::transform(inphase = cos(2 * pi * time / period),
-                    outphase = sin(2 * pi * time / period))
+  exp_design <- base::cbind(exp_design,
+                            inphase = cos(2 * pi * exp_design$time / period),
+                            outphase = sin(2 * pi * exp_design$time / period))
 
   design <- stats::model.matrix(~0 + group + group:inphase + group:outphase,
-                                data = exp_design) %>%
-    magrittr::set_colnames(gsub("group", "", colnames(.))) %>%
-    magrittr::set_colnames(gsub(":", "_", colnames(.)))
-
-  colnames(design) <- gsub("group", "", colnames(design)) %>% {
-    gsub(":", "_", .)
-  }
+                                data = exp_design)
+  colnames(design) <- gsub("group", "", colnames(design))
+  colnames(design) <- gsub(":", "_", colnames(design))
 
   design_DR <- design
 
@@ -52,11 +48,13 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
                                colnames(design))]
 
   design_ABR <- stats::model.matrix(~0 + group + inphase + outphase,
-                                    data = exp_design) %>%
-    magrittr::set_colnames(gsub("group", "", colnames(.)))
+                                    data = exp_design)
 
-  design_noR <- stats::model.matrix(~0 + group, data = exp_design) %>%
-    magrittr::set_colnames(gsub("group", "", colnames(.)))
+  colnames(design_ABR) <- base::gsub("group", "", colnames(design_ABR))
+
+  design_noR <- stats::model.matrix(~0 + group, data = exp_design)
+
+  colnames(design_noR) <- gsub("group", "", colnames(design_noR))
 
   design_list <- list(noR = design_noR,
                       AR = design_AR,
@@ -66,24 +64,27 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
 
   model_selection <- limma::selectModel(y, design_list, criterion = criterion)
 
-  model_assignment <- with(model_selection, pref[pref != "noR"])
+  model_assignment <- model_selection$pref[model_selection$pref != "noR"]
 
-  model_circ_params <- lapply(design_list[-1],
+  model_circ_params <- base::lapply(design_list[-1],
                               compute_model_params, y, group_id)
 
   circ_params <- base::vapply(model_assignment,
                               function(m) {
                                 model_circ_params[[base::as.character(m)]][names(m), ]
                               },
-                              FUN.VALUE = double(4)) %>% t()
+                              FUN.VALUE = double(4))
 
-  results <- data.frame(circ_params) %>%
-             {base::cbind(symbol = names(model_assignment),
-                         best_model = unname(model_assignment), .,
-                         max_amp = pmax(.[, paste0(group_id[1], "_amp")],
-                                        .[, paste0(group_id[2], "_amp")]))} %>%
-             base::subset(max_amp > amp_cutoff) %>%
-             base::subset(select = -max_amp)
+  results <- data.frame(t(circ_params))
+  results <- base::cbind(symbol = names(model_assignment),
+                         best_model = unname(model_assignment),
+                         results)
+
+  results$max_amp <- pmax(results[, paste0(group_id[1], "_amp")],
+                          results[, paste0(group_id[2], "_amp")])
+
+  results <- results[results$max_amp > amp_cutoff, ]
+  results$max_amp <- NULL
 
   for (i in seq(nrow(results))) {
     if (results[i, "best_model"] == "DR") {
