@@ -15,8 +15,16 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                 compare_fdr = 0.05, amp_cutoff = 0.5,
                                 include_pvals = FALSE) {
 
+  base::stopifnot(
+    ncol(y) == nrow(exp_design),
+    any(base::colnames(exp_design) == "time"),
+    any(base::colnames(exp_design) == "group"),
+    all(base::Negate(base::is.na)(y))
+  )
+
   exp_design <- base::cbind(exp_design,
                             col_number = base::seq(base::nrow(exp_design)))
+
   group_ID <- base::unique(exp_design$group)
 
   exp_design_A <- base::subset(exp_design, group == group_ID[1])
@@ -37,10 +45,12 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                       by = deltat_A)
 
   measure_sequence_A <- base::table(exp_design_A$time) %>% {
-                        base::sapply(time_A,
+                        base::vapply(time_A,
                                      function(t) ifelse(any(names(.) == t),
                                              .[names(.) == t],
-                                             0))
+                                             0),
+                                     integer(1)
+                                     )
                           }
 
   deltat_B <- exp_design_B %$% base::unique(time) %>%
@@ -53,9 +63,10 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                       by = deltat_B)
 
   measure_sequence_B <- base::table(exp_design_B$time) %>% {
-                        base::sapply(time_B,
+                        base::vapply(time_B,
                                      function(t) ifelse(any(names(.) == t),
-                                                   .[names(.) == t], 0))
+                                                   .[names(.) == t], 0),
+                                     integer(1))
                         }
 
 
@@ -74,9 +85,9 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                                        method = "BH"))
 
 
-  circ_params_A <- compute_circ_params(y_A, time_A, period = period)
+  circ_params_A <- compute_circ_params(y_A, exp_design_A$time, period = period)
 
-  circ_params_B <- compute_circ_params(y_B, time_B, period = period)
+  circ_params_B <- compute_circ_params(y_B, exp_design_B$time, period = period)
 
   rhythmic_in_A <- (rain_results$p_val_adjust_A < rhythm_fdr) &
                     (circ_params_A[, "amps"] > amp_cutoff)
@@ -86,22 +97,24 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
 
   rhythmic_in_either <- rhythmic_in_A | rhythmic_in_B
 
-  if (sum(rhythmic_in_either)==0) {
+  if (sum(rhythmic_in_either) == 0) {
     stop("Sorry no rhythmic genes in either data set for the thresholds provided.")
   }
 
-  dodr_results <- DODR::dodr(t(y_A[rhythmic_in_either, ]),
+  dodr_results <- DODR::robustDODR(t(y_A[rhythmic_in_either, ]),
                              t(y_B[rhythmic_in_either, ]),
-                             times1 = time_A,
-                             times2 = time_B,
-                             norm = FALSE,
+                             times1 = exp_design_A$time,
+                             times2 = exp_design_B$time,
+                             norm = TRUE,
                              period = period) %>%
-                  transform(p_value_adjust = p.adjust(p.value, method="BH"))
+                  base::transform(p_val_adjust = p.adjust(p.value,
+                                                          method = "BH"))
 
   results <- data.frame(symbol = rownames(y_A)[rhythmic_in_either],
                         rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
                         rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
-                        diff_rhythmic = dodr_results$p_value_adjust < compare_fdr)
+                        diff_rhythmic = dodr_results$p_val_adjust < compare_fdr) %>%
+             magrittr::set_rownames(NULL)
 
   if (include_pvals) {
     results <- transform(results,

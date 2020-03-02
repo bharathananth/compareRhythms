@@ -2,8 +2,8 @@ Package: compareRhythms
 Type: Package
 Title: Implementation of Various Workflows for Differential Rhythm Analysis
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author: Bharath Ananthasubramaniam
+Maintainer: Bharath Ananthasubramaniam <bharath.ananth@charite.de>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
@@ -12,4 +12,5 @@ LazyData: true
 RoxygenNote: 7.0.2
 Imports:
   magrittr (>= 1.5),
-  DODR (>= 0.99.2)
+  DODR (>= 0.99.2),
+  limma(>= 3.38.3)
