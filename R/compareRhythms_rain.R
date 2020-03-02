@@ -6,9 +6,14 @@
 #' @param period The period of rhythm being tested (default = 24)
 #' @param rhythm_fdr The false discovery cutoff for finding rhythmic time series
 #'   (default = 0.05)
-#' @param amp_cutoff The minimum peak-to-trough amp in log2 scale
-#'   considered biologically relevant
-#' @param include_pvals
+#' @param compare_fdr The false discovery cutoff for the comparison of rhythms
+#'   (default = 0.05)
+#' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
+#'   biologically relevant
+#' @param include_pvals A flag to select whether p-values, amplitudes and phases
+#'   must be included with the results
+#' @return A data.frame with the symbol, boolean results of the rhythmicity
+#'   tests and (optionally) the p-values and circadian parameters.
 #' @export
 
 compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
@@ -25,13 +30,13 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   exp_design <- base::cbind(exp_design,
                             col_number = base::seq(base::nrow(exp_design)))
 
-  group_ID <- base::unique(exp_design$group)
+  group_id <- base::unique(exp_design$group)
 
-  exp_design_A <- base::subset(exp_design, group == group_ID[1])
+  exp_design_A <- base::subset(exp_design, group == group_id[1])
 
   exp_design_A <- exp_design_A[base::order(exp_design_A$time), ]
 
-  exp_design_B <- base::subset(exp_design, group == group_ID[2])
+  exp_design_B <- base::subset(exp_design, group == group_id[2])
 
   exp_design_B <- exp_design_B[base::order(exp_design_B$time), ]
 

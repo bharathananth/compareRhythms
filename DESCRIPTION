@@ -6,11 +6,12 @@ Author: Bharath Ananthasubramaniam
 Maintainer: Bharath Ananthasubramaniam <bharath.ananth@charite.de>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
 Imports:
   magrittr (>= 1.5),
+  rain (>= 1.18.0),
   DODR (>= 0.99.2),
-  limma(>= 3.38.3)
+  limma (>= 3.38.3)
