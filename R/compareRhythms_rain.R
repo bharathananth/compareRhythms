@@ -110,7 +110,7 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                    times2 = exp_design_B$time,
                                    norm = TRUE,
                                    period = period)
-  dodr_results$p_val_adjust = stats::p.adjust(dodr_results$p.value, method = "BH")
+  dodr_results$p_val_adjust <- stats::p.adjust(dodr_results$p.value, method = "BH")
 
   results <- data.frame(symbol = rownames(y_A)[rhythmic_in_either],
                         rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
@@ -119,15 +119,18 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   rownames(results) <- NULL
 
   if (include_pvals) {
-    results$p_val_adjust_A = p_val_adjust_A[rhythmic_in_either]
-    results$p_val_adjust_B = p_val_adjust_B[rhythmic_in_either]
-    results$p_val_adjust_dodr = dodr_results$p_value_adjust
-    results$amp_A = circ_params_A[rhythmic_in_either, "amps"]
-    results$amp_B = circ_params_B[rhythmic_in_either, "amps"]
-    results$phase_A = circ_params_A[rhythmic_in_either, "phases"]
-    results$phase_B = circ_params_B[rhythmic_in_either, "phases"]
-
+    expand_results <- data.frame(
+      p_val_adjust_A = rain_results$p_val_adjust_A[rhythmic_in_either],
+      p_val_adjust_B = rain_results$p_val_adjust_B[rhythmic_in_either],
+      p_val_adjust_dodr = dodr_results$p_value_adjust,
+      amp_A = circ_params_A[rhythmic_in_either, "amps"],
+      amp_B = circ_params_B[rhythmic_in_either, "amps"],
+      phase_A = circ_params_A[rhythmic_in_either, "phases"],
+      phase_B = circ_params_B[rhythmic_in_either, "phases"]
+    )
+    results <- base::cbind(results, expand_results)
   }
+
 
   return(results)
 }
