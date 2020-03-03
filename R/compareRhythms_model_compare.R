@@ -1,8 +1,8 @@
 #' Run differential rhythmicity analysis using linear model comparison
 #'
 #' This function runs the information criteria-based model selection proposed by
-#' Atger et al. (2015) for identifying timeseries with different rhythms in the two
-#' datasets.
+#' Atger et al. (2015) for identifying timeseries with different rhythms in the
+#' two datasets.
 #'
 #' @param y A matrix with gene in the rows and samples in columns containing
 #'   data from both datasets
@@ -13,8 +13,8 @@
 #'   biologically relevant (default = 0.5)
 #' @param criterion The criterion used for model selection. These can be "aic"
 #'   or "bic" (default = "bic")
-#' @return A data.frame with symbol, best linear model and estimates of the
-#'   amplitudes and phases for the two datasets
+#' @return A data.frame with symbol, best linear model (termed class) and
+#'   estimates of the amplitudes and phases for the two datasets
 #'
 #' @export
 
@@ -87,15 +87,15 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
   results$max_amp <- NULL
 
   for (i in seq(nrow(results))) {
-    if (results[i, "best_model"] == "DR") {
+    if (results[i, "class"] == "DR") {
       if (results[i, paste0(group_id[2], "_amp")] < amp_cutoff) {
-        results[i, "best_model"] == "AR"
+        results[i, "class"] == "AR"
         results[i, paste0(group_id[2], "_amp")] <- 0
         results[i, paste0(group_id[2], "_phase")] <- 0
       }
 
       if (results[i, paste0(group_id[1], "_amp")] < amp_cutoff) {
-        results[i, "best_model"] == "BR"
+        results[i, "class"] == "BR"
         results[i, paste0(group_id[1], "_amp")] <- 0
         results[i, paste0(group_id[1], "_phase")] <- 0
       }
@@ -103,47 +103,4 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
   }
 
   return(results)
-}
-
-compute_model_params <- function(d, y, group_id) {
-  fit <- limma::lmFit(y, d)
-  coeffs <- fit$coefficients
-  if (any(base::grepl(paste0(group_id[1], "_"),
-                      colnames(coeffs)))) {
-    rhy_params <- coeffs[, base::paste(group_id[1],
-                                       c("inphase", "outphase"),
-                                       sep = "_")]
-    amps_A <- 2 * sqrt(base::rowSums(rhy_params^2))
-    phases_A <- base::atan2(rhy_params[, 2], rhy_params[, 1])
-  } else {
-    amps_A <- 0
-    phases_A <- 0
-  }
-
-  if (any(base::grepl(paste0(group_id[2], "_"),
-                      colnames(coeffs)))) {
-    rhy_params <- coeffs[, base::paste(group_id[2],
-                                       c("inphase", "outphase"),
-                                       sep = "_")]
-    amps_B <- 2 * sqrt(base::rowSums(rhy_params^2))
-    phases_B <- base::atan2(rhy_params[, 2], rhy_params[, 1])
-  } else {
-    amps_B <- 0
-    phases_B <- 0
-  }
-
-  if (all(base::is.element(c("inphase", "outphase"),
-                           colnames(coeffs)))) {
-    rhy_params <- coeffs[, c("inphase", "outphase")]
-    amps <- 2 * sqrt(base::rowSums(rhy_params^2))
-    phases <- base::atan2(rhy_params[, 2], rhy_params[, 1])
-    model_params <- base::cbind(amps, phases, amps, phases)
-  } else {
-    model_params <- base::cbind(amps_A, phases_A, amps_B, phases_B)
-  }
-
-  colnames(model_params) <- base::paste(rep(group_id, each = 2),
-                                        c("amp", "phase"), sep = "_")
-
-  return(model_params)
 }

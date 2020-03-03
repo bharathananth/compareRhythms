@@ -14,3 +14,63 @@ compute_circ_params <- function(y, t, period) {
   return(base::cbind(amps = amps, phases = phases))
 
 }
+
+compute_model_params <- function(d, y, group_id) {
+  fit <- limma::lmFit(y, d)
+  coeffs <- fit$coefficients
+  if (any(base::grepl(paste0(group_id[1], "_"),
+                      colnames(coeffs)))) {
+    rhy_params <- coeffs[, base::paste(group_id[1],
+                                       c("inphase", "outphase"),
+                                       sep = "_")]
+    amps_A <- 2 * sqrt(base::rowSums(rhy_params^2))
+    phases_A <- base::atan2(rhy_params[, 2], rhy_params[, 1])
+  } else {
+    amps_A <- 0
+    phases_A <- 0
+  }
+
+  if (any(base::grepl(paste0(group_id[2], "_"),
+                      colnames(coeffs)))) {
+    rhy_params <- coeffs[, base::paste(group_id[2],
+                                       c("inphase", "outphase"),
+                                       sep = "_")]
+    amps_B <- 2 * sqrt(base::rowSums(rhy_params^2))
+    phases_B <- base::atan2(rhy_params[, 2], rhy_params[, 1])
+  } else {
+    amps_B <- 0
+    phases_B <- 0
+  }
+
+  if (all(base::is.element(c("inphase", "outphase"),
+                           colnames(coeffs)))) {
+    rhy_params <- coeffs[, c("inphase", "outphase")]
+    amps <- 2 * sqrt(base::rowSums(rhy_params^2))
+    phases <- base::atan2(rhy_params[, 2], rhy_params[, 1])
+    model_params <- base::cbind(amps, phases, amps, phases)
+  } else {
+    model_params <- base::cbind(amps_A, phases_A, amps_B, phases_B)
+  }
+
+  colnames(model_params) <- base::paste(rep(group_id, each = 2),
+                                        c("amp", "phase"), sep = "_")
+
+  return(model_params)
+}
+
+
+assign_to_class <- function(results){
+
+  base::mapply(function(a,b,dr){
+    if (a && !b && dr) {
+      class <- "AR"
+    } else if (!a && b && dr) {
+      class <- "BR"
+    } else if (a && b && dr) {
+      class <- "DR"
+    } else {
+      class <- "ABR"
+    }
+    return(class)
+  }, results$rhythmic_in_A, results$rhythmic_in_B, results$diff_rhythmic)
+}

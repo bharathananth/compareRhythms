@@ -1,6 +1,6 @@
 Package: compareRhythms
 Type: Package
-Title: Implementation of Various Workflows for Differential Rhythmicity Analysis
+Title: Implementation of Various Approaches for Differential Rhythmicity Analysis
 Version: 0.1.0
 Author: Bharath Ananthasubramaniam
 Maintainer: Bharath Ananthasubramaniam <bharath.ananth@charite.de>
@@ -11,6 +11,9 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
 Imports:
-  rain (>= 1.16.0),
-  DODR (>= 0.99.2),
-  limma (>= 3.38.3)
+    rain (>= 1.16.0),
+    DODR (>= 0.99.2),
+    limma (>= 3.38.3),
+    assertthat (>= 0.2.1)
+Suggests: 
+    testthat (>= 2.1.0)

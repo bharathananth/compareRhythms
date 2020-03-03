@@ -10,17 +10,19 @@
 #'   (default = 0.05)
 #' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
 #'   biologically relevant
-#' @param include_pvals A flag to select whether p-values, amplitudes and phases
-#'   must be included with the results
+#' @param just_classify Logical to select whether p-values, amplitudes and phases
+#'   must be supressed in the results
 #' @return A data.frame with the symbol, boolean results of the rhythmicity
 #'   tests and (optionally) the p-values and circadian parameters.
 #' @export
 
 compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                 compare_fdr = 0.05, amp_cutoff = 0.5,
-                                include_pvals = FALSE) {
+                                just_classify = TRUE) {
 
   base::stopifnot(
+    is.matrix(y),
+    is.data.frame(exp_design),
     ncol(y) == nrow(exp_design),
     any(base::colnames(exp_design) == "time"),
     any(base::colnames(exp_design) == "group"),
@@ -118,11 +120,11 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                         diff_rhythmic = dodr_results$p_val_adjust < compare_fdr)
   rownames(results) <- NULL
 
-  if (include_pvals) {
+  if (!just_classify) {
     expand_results <- data.frame(
-      p_val_adjust_A = rain_results$p_val_adjust_A[rhythmic_in_either],
-      p_val_adjust_B = rain_results$p_val_adjust_B[rhythmic_in_either],
-      p_val_adjust_dodr = dodr_results$p_value_adjust,
+      adj_p_val_A = rain_results$p_val_adjust_A[rhythmic_in_either],
+      adj_p_val_B = rain_results$p_val_adjust_B[rhythmic_in_either],
+      adj_p_val_dodr = dodr_results$p_value_adjust,
       amp_A = circ_params_A[rhythmic_in_either, "amps"],
       amp_B = circ_params_B[rhythmic_in_either, "amps"],
       phase_A = circ_params_A[rhythmic_in_either, "phases"],
@@ -130,7 +132,6 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
     )
     results <- base::cbind(results, expand_results)
   }
-
 
   return(results)
 }
