@@ -20,19 +20,13 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                 compare_fdr = 0.05, amp_cutoff = 0.5,
                                 just_classify = TRUE) {
 
-  base::stopifnot(
-    is.matrix(y),
-    is.data.frame(exp_design),
-    ncol(y) == nrow(exp_design),
-    any(base::colnames(exp_design) == "time"),
-    any(base::colnames(exp_design) == "group"),
-    all(base::Negate(base::is.na)(y))
-  )
+  input_check(y, exp_design)
 
   exp_design <- base::cbind(exp_design,
                             col_number = base::seq(base::nrow(exp_design)))
 
   group_id <- base::unique(exp_design$group)
+  assertthat::are_equal(length(group_id), 2)
 
   exp_design_A <- exp_design[exp_design$group == group_id[1], ]
 
@@ -87,24 +81,24 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
 
   rain_results <- data.frame(stats::p.adjust(rain_A[, "pVal"], method = "BH"),
                              stats::p.adjust(rain_B[, "pVal"], method = "BH"))
-  colnames(rain_results) <- c("p_val_adjust_A", "p_val_adjust_B")
+  colnames(rain_results) <- c("adj_p_val_A", "adj_p_val_B")
 
 
   circ_params_A <- compute_circ_params(y_A, exp_design_A$time, period = period)
 
   circ_params_B <- compute_circ_params(y_B, exp_design_B$time, period = period)
 
-  rhythmic_in_A <- (rain_results$p_val_adjust_A < rhythm_fdr) &
+  rhythmic_in_A <- (rain_results$adj_p_val_A < rhythm_fdr) &
     (circ_params_A[, "amps"] > amp_cutoff)
 
-  rhythmic_in_B <- (rain_results$p_val_adjust_B < rhythm_fdr) &
+  rhythmic_in_B <- (rain_results$adj_p_val_B < rhythm_fdr) &
     (circ_params_B[, "amps"] > amp_cutoff)
 
   rhythmic_in_either <- rhythmic_in_A | rhythmic_in_B
 
-  if (sum(rhythmic_in_either) == 0) {
-    stop("Sorry no rhythmic genes in either data set for the thresholds provided.")
-  }
+  assertthat::assert_that(sum(rhythmic_in_either) > 0,
+                          msg = "Sorry no rhythmic genes in either
+                          dataset for the thresholds provided.")
 
   dodr_results <- DODR::robustDODR(t(y_A[rhythmic_in_either, ]),
                                    t(y_B[rhythmic_in_either, ]),
@@ -112,19 +106,24 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                    times2 = exp_design_B$time,
                                    norm = TRUE,
                                    period = period)
-  dodr_results$p_val_adjust <- stats::p.adjust(dodr_results$p.value, method = "BH")
+  dodr_results$adj_p_val <- stats::p.adjust(dodr_results$p.value, method = "BH")
 
   results <- data.frame(symbol = rownames(y_A)[rhythmic_in_either],
                         rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
                         rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
-                        diff_rhythmic = dodr_results$p_val_adjust < compare_fdr)
+                        diff_rhythmic = dodr_results$adj_p_val < compare_fdr)
   rownames(results) <- NULL
+
+  results$class <- base::mapply(assign_to_class,
+                                results$rhythmic_in_A,
+                                results$rhythmic_in_B,
+                                results$diff_rhythmic)
 
   if (!just_classify) {
     expand_results <- data.frame(
-      adj_p_val_A = rain_results$p_val_adjust_A[rhythmic_in_either],
-      adj_p_val_B = rain_results$p_val_adjust_B[rhythmic_in_either],
-      adj_p_val_dodr = dodr_results$p_value_adjust,
+      adj_p_val_A = rain_results$adj_p_val_A[rhythmic_in_either],
+      adj_p_val_B = rain_results$adj_p_val_B[rhythmic_in_either],
+      adj_p_val_dodr = dodr_results$adj_p_val,
       amp_A = circ_params_A[rhythmic_in_either, "amps"],
       amp_B = circ_params_B[rhythmic_in_either, "amps"],
       phase_A = circ_params_A[rhythmic_in_either, "phases"],

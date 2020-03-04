@@ -13,16 +13,12 @@
 #'   must be supressed in the results
 #'
 #' @export
+
 compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                  compare_fdr = 0.05, amp_cutoff = 0.5,
-                                 just_classify = FALSE) {
+                                 just_classify = TRUE) {
 
-  assertthat::assert_that(is.matrix(y))
-  assertthat::assert_that(is.data.frame(exp_design))
-  assertthat::are_equal(ncol(y), nrow(exp_design))
-  assertthat::assert_that(assertthat::has_name(exp_design, "time"))
-  assertthat::assert_that(assertthat::has_name(exp_design, "group"))
-  assertthat::see_if(all(!is.na(y)))
+  input_check(y, exp_design)
 
   group_id <- base::unique(exp_design$group)
   assertthat::are_equal(length(group_id), 2)
@@ -60,6 +56,10 @@ compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   results <- results[(results$adj_p_val_A_or_B < rhythm_fdr) &
                       (results$max_amp > amp_cutoff), ]
 
+  assertthat::assert_that(assertthat::not_empty(results),
+                          msg = "Sorry no rhythmic genes in either
+                          dataset for the thresholds provided.")
+
   results$max_amp <- NULL
 
   contrasts <- c(paste0(group_id, "_inphase", collapse = "-"),
@@ -85,7 +85,10 @@ compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
 
   results$rhythmic_in_B <- results[, paste0(group_id[2],"_amp")] > amp_cutoff
 
-  results$class <- assign_to_class(results)
+  results$class <- base::mapply(assign_to_class,
+                                results$rhythmic_in_A,
+                                results$rhythmic_in_B,
+                                results$diff_rhythmic)
 
   main_cols <- c("symbol", "rhythmic_in_A", "rhythmic_in_B", "diff_rhythmic", "class")
 
@@ -94,6 +97,8 @@ compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   if (just_classify){
     results <- results[, main_cols]
   }
+
+  rownames(results) <- NULL
 
   return(results)
 }

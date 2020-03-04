@@ -21,12 +21,7 @@
 compareRhythms_model_compare <- function(y, exp_design, period = 24,
                                          amp_cutoff = 0.5,
                                          criterion = "bic") {
-  base::stopifnot(
-    ncol(y) == nrow(exp_design),
-    any(base::colnames(exp_design) == "time"),
-    any(base::colnames(exp_design) == "group"),
-    all(base::Negate(base::is.na)(y))
-  )
+  input_check(y, exp_design)
 
   group_id <- base::unique(exp_design$group)
 
@@ -77,8 +72,8 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
 
   results <- data.frame(t(circ_params))
   results <- base::cbind(symbol = names(model_assignment),
-                         best_model = unname(model_assignment),
-                         results)
+                         results,
+                         class = unname(model_assignment))
 
   results$max_amp <- pmax(results[, paste0(group_id[1], "_amp")],
                           results[, paste0(group_id[2], "_amp")])
@@ -101,6 +96,8 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
       }
     }
   }
+
+  rownames(results) <- NULL
 
   return(results)
 }

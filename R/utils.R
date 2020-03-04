@@ -58,19 +58,26 @@ compute_model_params <- function(d, y, group_id) {
   return(model_params)
 }
 
+assign_to_class <- function(a, b, dr) {
+  if (a && !b && dr) {
+    class <- "AR"
+  } else if (!a && b && dr) {
+    class <- "BR"
+  } else if (a && b && dr) {
+    class <- "DR"
+  } else {
+    class <- "ABR"
+  }
+  return(class)
+}
 
-assign_to_class <- function(results){
-
-  base::mapply(function(a,b,dr){
-    if (a && !b && dr) {
-      class <- "AR"
-    } else if (!a && b && dr) {
-      class <- "BR"
-    } else if (a && b && dr) {
-      class <- "DR"
-    } else {
-      class <- "ABR"
-    }
-    return(class)
-  }, results$rhythmic_in_A, results$rhythmic_in_B, results$diff_rhythmic)
+input_check <- function(y, exp_design) {
+  assertthat::assert_that(
+    is.matrix(y),
+    is.data.frame(exp_design),
+    assertthat::are_equal(ncol(y), nrow(exp_design)),
+    assertthat::has_name(exp_design, "time"),
+    assertthat::has_name(exp_design, "group"),
+    assertthat::noNA(y)
+  )
 }
