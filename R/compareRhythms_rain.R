@@ -10,8 +10,8 @@
 #'   (default = 0.05)
 #' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
 #'   biologically relevant
-#' @param just_classify Logical to select whether p-values, amplitudes and phases
-#'   must be supressed in the results
+#' @param just_classify Logical to select whether p-values, amplitudes and
+#'   phases must be supressed in the results
 #' @return A data.frame with the symbol, boolean results of the rhythmicity
 #'   tests and (optionally) the p-values and circadian parameters.
 #' @export
@@ -73,6 +73,9 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   y_A <- y[, exp_design_A$col_number]
   y_B <- y[, exp_design_B$col_number]
 
+  assertthat::assert_that((sum(measure_sequence_A) >= 12) && (sum(measure_sequence_B) >= 12),
+                          msg = "Not enough samples to run RAIN rhythmicity analysis confidently.")
+
   rain_A <- rain::rain(t(y_A), deltat_A, period,
                        measure.sequence = measure_sequence_A)
 
@@ -97,8 +100,7 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   rhythmic_in_either <- rhythmic_in_A | rhythmic_in_B
 
   assertthat::assert_that(sum(rhythmic_in_either) > 0,
-                          msg = "Sorry no rhythmic genes in either
-                          dataset for the thresholds provided.")
+                          msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
 
   dodr_results <- DODR::robustDODR(t(y_A[rhythmic_in_either, ]),
                                    t(y_B[rhythmic_in_either, ]),
@@ -121,16 +123,19 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
 
   if (!just_classify) {
     expand_results <- data.frame(
+      A_amp = circ_params_A[rhythmic_in_either, "amps"],
+      A_phase = circ_params_A[rhythmic_in_either, "phases"],
+      B_amp = circ_params_B[rhythmic_in_either, "amps"],
+      B_phase = circ_params_B[rhythmic_in_either, "phases"],
       adj_p_val_A = rain_results$adj_p_val_A[rhythmic_in_either],
       adj_p_val_B = rain_results$adj_p_val_B[rhythmic_in_either],
-      adj_p_val_dodr = dodr_results$adj_p_val,
-      amp_A = circ_params_A[rhythmic_in_either, "amps"],
-      amp_B = circ_params_B[rhythmic_in_either, "amps"],
-      phase_A = circ_params_A[rhythmic_in_either, "phases"],
-      phase_B = circ_params_B[rhythmic_in_either, "phases"]
+      adj_p_val_dodr = dodr_results$adj_p_val
     )
     results <- base::cbind(results, expand_results)
   }
+
+  colnames(results) <- gsub("A", group_id[1], colnames(results))
+  colnames(results) <- gsub("B", group_id[2], colnames(results))
 
   return(results)
 }

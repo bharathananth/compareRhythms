@@ -8,11 +8,11 @@ test_that("limma analysis works for default params", {
   results <- compareRhythms_limma(y, exp_design)
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("symbol", "rhythmic_in_A", "rhythmic_in_B", "diff_rhythmic", "class"))
+               c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "class"))
 })
 
 test_that("limma analysis works for different input params", {
-  expect_error(compareRhythms_limma(y, exp_design, period=12))
+  expect_error(compareRhythms_limma(y, exp_design, period = 12))
   expect_s3_class(compareRhythms_limma(y, exp_design, rhythm_fdr = 0.01), "data.frame")
   expect_s3_class(compareRhythms_limma(y, exp_design, compare_fdr = 0.01), "data.frame")
   expect_s3_class(compareRhythms_limma(y, exp_design, rhythm_fdr = 0.1, compare_fdr = 0.01), "data.frame")
@@ -21,8 +21,8 @@ test_that("limma analysis works for different input params", {
   results <- compareRhythms_limma(y, exp_design, just_classify = FALSE)
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("symbol", "rhythmic_in_A", "rhythmic_in_B", "diff_rhythmic", "class", "CC_amp",
-                 "CC_phase", "KD_amp", "KD_phase", "adj_p_val_A_or_B",
+               c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "class", "CC_amp",
+                 "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC_or_KD",
                  "adj_p_val_DR"))
 })
 

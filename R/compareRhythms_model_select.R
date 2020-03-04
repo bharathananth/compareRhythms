@@ -1,4 +1,4 @@
-#' Run differential rhythmicity analysis using linear model comparison
+#' Run differential rhythmicity analysis using linear model selection
 #'
 #' This function runs the information criteria-based model selection proposed by
 #' Atger et al. (2015) for identifying timeseries with different rhythms in the
@@ -18,7 +18,7 @@
 #'
 #' @export
 
-compareRhythms_model_compare <- function(y, exp_design, period = 24,
+compareRhythms_model_select <- function(y, exp_design, period = 24,
                                          amp_cutoff = 0.5,
                                          criterion = "bic") {
   input_check(y, exp_design)
@@ -61,6 +61,9 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
 
   model_assignment <- model_selection$pref[model_selection$pref != "noR"]
 
+  assertthat::assert_that(assertthat::not_empty(model_assignment),
+                          msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
+
   model_circ_params <- base::lapply(design_list[-1],
                               compute_model_params, y, group_id)
 
@@ -97,7 +100,14 @@ compareRhythms_model_compare <- function(y, exp_design, period = 24,
     }
   }
 
+
   rownames(results) <- NULL
+  colnames(results) <- gsub("A", group_id[1], colnames(results))
+  colnames(results) <- gsub("B", group_id[2], colnames(results))
+
+  main_cols <- c("symbol", "class")
+  results <- results[, c(main_cols,
+                         base::setdiff(colnames(results), main_cols))]
 
   return(results)
 }

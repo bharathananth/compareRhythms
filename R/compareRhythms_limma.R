@@ -57,8 +57,7 @@ compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                       (results$max_amp > amp_cutoff), ]
 
   assertthat::assert_that(assertthat::not_empty(results),
-                          msg = "Sorry no rhythmic genes in either
-                          dataset for the thresholds provided.")
+                          msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
 
   results$max_amp <- NULL
 
@@ -81,25 +80,28 @@ compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                           method = "BH")
   results$diff_rhythmic <- results$adj_p_val_DR < compare_fdr
 
-  results$rhythmic_in_A <- results[, paste0(group_id[1],"_amp")] > amp_cutoff
+  results$rhythmic_in_A <- results[, paste0(group_id[1], "_amp")] > amp_cutoff
 
-  results$rhythmic_in_B <- results[, paste0(group_id[2],"_amp")] > amp_cutoff
+  results$rhythmic_in_B <- results[, paste0(group_id[2], "_amp")] > amp_cutoff
 
   results$class <- base::mapply(assign_to_class,
                                 results$rhythmic_in_A,
                                 results$rhythmic_in_B,
                                 results$diff_rhythmic)
 
-  main_cols <- c("symbol", "rhythmic_in_A", "rhythmic_in_B", "diff_rhythmic", "class")
+  main_cols <- c("symbol", "rhythmic_in_A", "rhythmic_in_B",
+                 "diff_rhythmic", "class")
 
-  results <- results[, c(main_cols, base::setdiff(colnames(results), main_cols))]
+  results <- results[, c(main_cols,
+                         base::setdiff(colnames(results), main_cols))]
 
-  if (just_classify){
+  if (just_classify) {
     results <- results[, main_cols]
   }
 
   rownames(results) <- NULL
+  colnames(results) <- gsub("A", group_id[1], colnames(results))
+  colnames(results) <- gsub("B", group_id[2], colnames(results))
 
   return(results)
 }
-
