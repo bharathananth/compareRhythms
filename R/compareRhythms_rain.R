@@ -116,7 +116,7 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                         diff_rhythmic = dodr_results$adj_p_val < compare_fdr)
   rownames(results) <- NULL
 
-  results$class <- base::mapply(assign_to_class,
+  results$category <- base::mapply(categorize,
                                 results$rhythmic_in_A,
                                 results$rhythmic_in_B,
                                 results$diff_rhythmic)

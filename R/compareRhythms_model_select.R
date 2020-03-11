@@ -13,7 +13,7 @@
 #'   biologically relevant (default = 0.5)
 #' @param criterion The criterion used for model selection. These can be "aic"
 #'   or "bic" (default = "bic")
-#' @return A data.frame with symbol, best linear model (termed class) and
+#' @return A data.frame with symbol, best linear model (termed category) and
 #'   estimates of the amplitudes and phases for the two datasets
 #'
 #' @export
@@ -76,7 +76,7 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
   results <- data.frame(t(circ_params))
   results <- base::cbind(symbol = names(model_assignment),
                          results,
-                         class = unname(model_assignment))
+                         category = unname(model_assignment))
 
   results$max_amp <- pmax(results[, paste0(group_id[1], "_amp")],
                           results[, paste0(group_id[2], "_amp")])
@@ -85,15 +85,15 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
   results$max_amp <- NULL
 
   for (i in seq(nrow(results))) {
-    if (results[i, "class"] == "DR") {
+    if (results[i, "category"] == "DR") {
       if (results[i, paste0(group_id[2], "_amp")] < amp_cutoff) {
-        results[i, "class"] == "AR"
+        results[i, "category"] == "AR"
         results[i, paste0(group_id[2], "_amp")] <- 0
         results[i, paste0(group_id[2], "_phase")] <- 0
       }
 
       if (results[i, paste0(group_id[1], "_amp")] < amp_cutoff) {
-        results[i, "class"] == "BR"
+        results[i, "category"] == "BR"
         results[i, paste0(group_id[1], "_amp")] <- 0
         results[i, paste0(group_id[1], "_phase")] <- 0
       }
@@ -105,7 +105,7 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
   colnames(results) <- gsub("A", group_id[1], colnames(results))
   colnames(results) <- gsub("B", group_id[2], colnames(results))
 
-  main_cols <- c("symbol", "class")
+  main_cols <- c("symbol", "category")
   results <- results[, c(main_cols,
                          base::setdiff(colnames(results), main_cols))]
 

@@ -58,17 +58,17 @@ compute_model_params <- function(d, y, group_id) {
   return(model_params)
 }
 
-assign_to_class <- function(a, b, dr) {
+categorize <- function(a, b, dr) {
   if (a && !b && dr) {
-    class <- "AR"
+    category <- "AR"
   } else if (!a && b && dr) {
-    class <- "BR"
+    category <- "BR"
   } else if (a && b && dr) {
-    class <- "DR"
+    category <- "DR"
   } else {
-    class <- "ABR"
+    category <- "ABR"
   }
-  return(class)
+  return(category)
 }
 
 input_check <- function(y, exp_design) {

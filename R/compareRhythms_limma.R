@@ -74,7 +74,7 @@ compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   diff_rhy_results <- limma::topTable(diff_rhy_fit, number = Inf,
                                       sort.by = "none")
 
-  diff_rhy_results <- diff_rhy_results[results$symbol, ]
+  diff_rhy_results <- diff_rhy_results[diff_rhy_results$ID %in% results$symbol, ]
 
   results$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$P.Value,
                                           method = "BH")
@@ -84,13 +84,13 @@ compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
 
   results$rhythmic_in_B <- results[, paste0(group_id[2], "_amp")] > amp_cutoff
 
-  results$class <- base::mapply(assign_to_class,
+  results$category <- base::mapply(categorize,
                                 results$rhythmic_in_A,
                                 results$rhythmic_in_B,
                                 results$diff_rhythmic)
 
   main_cols <- c("symbol", "rhythmic_in_A", "rhythmic_in_B",
-                 "diff_rhythmic", "class")
+                 "diff_rhythmic", "category")
 
   results <- results[, c(main_cols,
                          base::setdiff(colnames(results), main_cols))]

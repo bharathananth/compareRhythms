@@ -7,7 +7,7 @@ test_that("model selection works for default params", {
   results <- compareRhythms_model_select(y, exp_design)
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("symbol", "class", "CC_amp", "CC_phase", "KD_amp", "KD_phase"))
+               c("symbol", "category", "CC_amp", "CC_phase", "KD_amp", "KD_phase"))
 })
 
 test_that("model selection works for different input params", {
