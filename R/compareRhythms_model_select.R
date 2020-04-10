@@ -13,6 +13,7 @@
 #'   biologically relevant (default = 0.5)
 #' @param criterion The criterion used for model selection. These can be "aic"
 #'   or "bic" (default = "bic")
+#' @param bayes_cutoff The minimum difference in BIC between two best models that is termed meaningful. Genes with difference smaller than this cutoff are deemed unclassifiable.
 #' @return A data.frame with symbol, best linear model (termed category) and
 #'   estimates of the amplitudes and phases for the two datasets
 #'
@@ -20,7 +21,8 @@
 
 compareRhythms_model_select <- function(y, exp_design, period = 24,
                                          amp_cutoff = 0.5,
-                                         criterion = "bic") {
+                                         criterion = "bic",
+                                         bayes_cutoff = 2) {
   input_check(y, exp_design)
 
   group_id <- base::unique(exp_design$group)
@@ -59,13 +61,19 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
 
   model_selection <- limma::selectModel(y, design_list, criterion = criterion)
 
-  model_assignment <- model_selection$pref[model_selection$pref != "noR"]
+  model_bayes_factor <- base::apply(model_selection$IC, 1,
+                                    function(x) base::diff(base::sort(x))[1])
+
+  model_assignment <- model_selection$pref[model_bayes_factor >= bayes_cutoff]
 
   assertthat::assert_that(assertthat::not_empty(model_assignment),
                           msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
 
   model_circ_params <- base::lapply(design_list[-1],
                               compute_model_params, y, group_id)
+
+  model_circ_params[["noR"]] <- matrix(0, nrow = nrow(y), ncol = 4,
+                                       dimnames = dimnames(model_circ_params[["ABR"]]))
 
   circ_params <- base::vapply(model_assignment,
                               function(m) {
@@ -81,9 +89,6 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
   results$max_amp <- pmax(results[, paste0(group_id[1], "_amp")],
                           results[, paste0(group_id[2], "_amp")])
 
-  results <- results[results$max_amp > amp_cutoff, ]
-  results$max_amp <- NULL
-
   for (i in seq(nrow(results))) {
     if (results[i, "category"] == "DR") {
       if (results[i, paste0(group_id[2], "_amp")] < amp_cutoff) {
@@ -98,9 +103,17 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
         results[i, paste0(group_id[1], "_phase")] <- 0
       }
     }
+
+    if (results$max_amp[i] < amp_cutoff) {
+      results[i, "category"] <- "noR"
+      results[i, paste0(group_id[1], "_amp")] <- 0
+      results[i, paste0(group_id[1], "_phase")] <- 0
+      results[i, paste0(group_id[2], "_amp")] <- 0
+      results[i, paste0(group_id[2], "_phase")] <- 0
+    }
   }
 
-
+  results$max_amp <- NULL
   rownames(results) <- NULL
   colnames(results) <- gsub("A", group_id[1], colnames(results))
   colnames(results) <- gsub("B", group_id[2], colnames(results))

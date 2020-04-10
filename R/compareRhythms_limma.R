@@ -74,7 +74,7 @@ compareRhythms_limma <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   diff_rhy_results <- limma::topTable(diff_rhy_fit, number = Inf,
                                       sort.by = "none")
 
-  diff_rhy_results <- diff_rhy_results[diff_rhy_results$ID %in% results$symbol, ]
+  diff_rhy_results <- diff_rhy_results[rownames(diff_rhy_results) %in% results$symbol, ]
 
   results$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$P.Value,
                                           method = "BH")
