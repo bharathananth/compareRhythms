@@ -4,7 +4,7 @@
 #' Atger et al. (2015) for identifying timeseries with different rhythms in the
 #' two datasets.
 #'
-#' @param y A matrix with gene in the rows and samples in columns containing
+#' @param expr A matrix with gene in the rows and samples in columns containing
 #'   data from both datasets
 #' @param exp_design A data.frame of the experimental design with at least
 #'   columns sample name, time point and group
@@ -13,17 +13,19 @@
 #'   biologically relevant (default = 0.5)
 #' @param criterion The criterion used for model selection. These can be "aic"
 #'   or "bic" (default = "bic")
-#' @param bayes_cutoff The minimum difference in BIC between two best models that is termed meaningful. Genes with difference smaller than this cutoff are deemed unclassifiable.
+#' @param bayes_cutoff The minimum difference in BIC between two best models
+#'   that is termed meaningful. Genes with difference smaller than this cutoff
+#'   are deemed unclassifiable.
+#' @param just_classify Logical to select whether p-values, amplitudes and
+#'   phases must be supressed in the results
 #' @return A data.frame with symbol, best linear model (termed category) and
 #'   estimates of the amplitudes and phases for the two datasets
-#'
-#' @export
 
-compareRhythms_model_select <- function(y, exp_design, period = 24,
+compareRhythms_model_select <- function(expr, exp_design, period = 24,
                                          amp_cutoff = 0.5,
                                          criterion = "bic",
-                                         bayes_cutoff = 2) {
-  input_check(y, exp_design)
+                                         bayes_cutoff = 2,
+                                         just_classify = TRUE) {
 
   group_id <- base::unique(exp_design$group)
 
@@ -59,7 +61,7 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
                       ABR = design_ABR,
                       DR = design_DR)
 
-  model_selection <- limma::selectModel(y, design_list, criterion = criterion)
+  model_selection <- limma::selectModel(expr, design_list, criterion = criterion)
 
   model_bayes_factor <- base::apply(model_selection$IC, 1,
                                     function(x) base::diff(base::sort(x))[1])
@@ -70,9 +72,9 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
                           msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
 
   model_circ_params <- base::lapply(design_list[-1],
-                              compute_model_params, y, group_id)
+                              compute_model_params, expr, group_id)
 
-  model_circ_params[["noR"]] <- matrix(0, nrow = nrow(y), ncol = 4,
+  model_circ_params[["noR"]] <- matrix(0, nrow = nrow(expr), ncol = 4,
                                        dimnames = dimnames(model_circ_params[["ABR"]]))
 
   circ_params <- base::vapply(model_assignment,
@@ -119,8 +121,12 @@ compareRhythms_model_select <- function(y, exp_design, period = 24,
   colnames(results) <- gsub("B", group_id[2], colnames(results))
 
   main_cols <- c("symbol", "category")
-  results <- results[, c(main_cols,
-                         base::setdiff(colnames(results), main_cols))]
+  if (just_classify) {
+    results <- results[, main_cols]
+  } else {
+    results <- results[, c(main_cols,
+                           base::setdiff(colnames(results), main_cols))]
+  }
 
   return(results)
 }

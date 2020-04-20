@@ -1,6 +1,6 @@
 Package: compareRhythms
 Type: Package
-Title: Implementation of Various Approaches for Differential Rhythmicity Analysis
+Title: Implementation of Various Approaches to Differential Rhythmicity Analysis
 Version: 0.1.0
 Author: Bharath Ananthasubramaniam
 Maintainer: Bharath Ananthasubramaniam <bharath.ananth@charite.de>
@@ -14,6 +14,10 @@ Imports:
     rain (>= 1.16.0),
     DODR (>= 0.99.2),
     limma (>= 3.38.3),
-    assertthat (>= 0.2.1)
+    assertthat (>= 0.2.1),
+    edgeR (>= 3.28.0),
+    DESeq2 (>= 1.26.0),
+    SummarizedExperiment (>= 1.16.1)
 Suggests: 
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    statmod (>= 1.2.2)

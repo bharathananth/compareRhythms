@@ -1,5 +1,5 @@
-#' Run differential rhythmicity analysis for microarray using limma
-#' @param eset A matrix with gene in the rows and samples in columns
+#' Run differential rhythmicity analysis for RNA-seq data using limma-voom
+#' @param counts A count matrix with gene in the rows and samples in columns
 #' @param exp_design A data.frame of the experimental design with at least
 #'   columns sample name, time point and group
 #' @param period The period of rhythm being tested (default = 24)
@@ -12,9 +12,9 @@
 #' @param just_classify Logical to select whether p-values, amplitudes and phases
 #'   must be supressed in the results
 
-compareRhythms_limma <- function(eset, exp_design, period = 24,
-                                 rhythm_fdr = 0.05, compare_fdr = 0.05,
-                                 amp_cutoff = 0.5, just_classify = TRUE) {
+compareRhythms_voom <- function(counts, exp_design, period=24, rhythm_fdr = 0.05,
+                                 compare_fdr = 0.05, amp_cutoff = 0.5,
+                                 just_classify = TRUE) {
 
   group_id <- base::unique(exp_design$group)
   assertthat::are_equal(length(group_id), 2)
@@ -28,7 +28,13 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
   colnames(design) <- gsub("group", "", colnames(design))
   colnames(design) <- gsub(":", "_", colnames(design))
 
-  fit <- limma::lmFit(eset, design)
+  y <- edgeR::DGEList(counts)
+
+  y <- edgeR::calcNormFactors(y)
+
+  v <- limma::voom(y, design)
+
+  fit <- limma::lmFit(v, design)
   fit <- limma::eBayes(fit, robust = TRUE, trend = TRUE)
 
   rhythmic_in_either <- limma::topTable(fit,
@@ -36,7 +42,7 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
                                         number = Inf,
                                         sort.by = "none")
 
-  results <- compute_model_params(design, eset, group_id)
+  results <- compute_model_params(design, v, group_id)
 
   results <- data.frame(results)
 

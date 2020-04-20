@@ -6,14 +6,16 @@ exp_design <- readRDS("exp_design.RDS")
 test_that("model selection works for default params", {
   results <- compareRhythms_model_select(y, exp_design)
   expect_s3_class(results, "data.frame")
-  expect_named(results,
-               c("symbol", "category", "CC_amp", "CC_phase", "KD_amp", "KD_phase"))
+  expect_named(results, c("symbol", "category"))
 })
 
 test_that("model selection works for different input params", {
   expect_s3_class(compareRhythms_model_select(y, exp_design, period = 12), "data.frame")
   expect_s3_class(compareRhythms_model_select(y, exp_design, amp_cutoff = 0), "data.frame")
   expect_s3_class(compareRhythms_model_select(y, exp_design, criterion = "aic"), "data.frame")
+  results <- compareRhythms_model_select(y, exp_design, just_classify = FALSE)
+  expect_s3_class(results, "data.frame")
+  expect_named(results, c("symbol", "category", "CC_amp", "CC_phase", "KD_amp", "KD_phase"))
 })
 
 test_that("model selection runs for arrhythmic dataset", {

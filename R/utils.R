@@ -70,14 +70,3 @@ categorize <- function(a, b, dr) {
   }
   return(category)
 }
-
-input_check <- function(y, exp_design) {
-  assertthat::assert_that(
-    is.matrix(y),
-    is.data.frame(exp_design),
-    assertthat::are_equal(ncol(y), nrow(exp_design)),
-    assertthat::has_name(exp_design, "time"),
-    assertthat::has_name(exp_design, "group"),
-    assertthat::noNA(y)
-  )
-}

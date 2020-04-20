@@ -1,6 +1,6 @@
 #' Run differential rhythmicity analysis defined in Thaben & Westermark
 #'
-#' @param y A matrix with gene in the rows and samples in columns
+#' @param expr A matrix of expression values with gene in the rows and samples in columns
 #' @param exp_design A data.frame of the experimental design with at least
 #'   columns sample name, time point and group
 #' @param period The period of rhythm being tested (default = 24)
@@ -14,13 +14,10 @@
 #'   phases must be supressed in the results
 #' @return A data.frame with the symbol, boolean results of the rhythmicity
 #'   tests and (optionally) the p-values and circadian parameters.
-#' @export
 
-compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
+compareRhythms_rain <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
                                 compare_fdr = 0.05, amp_cutoff = 0.5,
                                 just_classify = TRUE) {
-
-  input_check(y, exp_design)
 
   exp_design <- base::cbind(exp_design,
                             col_number = base::seq(base::nrow(exp_design)))
@@ -70,16 +67,16 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
                                      integer(1))
 
 
-  y_A <- y[, exp_design_A$col_number]
-  y_B <- y[, exp_design_B$col_number]
+  expr_A <- expr[, exp_design_A$col_number]
+  expr_B <- expr[, exp_design_B$col_number]
 
   assertthat::assert_that((sum(measure_sequence_A) >= 12) && (sum(measure_sequence_B) >= 12),
                           msg = "Not enough samples to run RAIN rhythmicity analysis confidently.")
 
-  rain_A <- rain::rain(t(y_A), deltat_A, period,
+  rain_A <- rain::rain(t(expr_A), deltat_A, period,
                        measure.sequence = measure_sequence_A)
 
-  rain_B <- rain::rain(t(y_B), deltat_B, period,
+  rain_B <- rain::rain(t(expr_B), deltat_B, period,
                        measure.sequence = measure_sequence_B)
 
   rain_results <- data.frame(stats::p.adjust(rain_A[, "pVal"], method = "BH"),
@@ -87,9 +84,9 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   colnames(rain_results) <- c("adj_p_val_A", "adj_p_val_B")
 
 
-  circ_params_A <- compute_circ_params(y_A, exp_design_A$time, period = period)
+  circ_params_A <- compute_circ_params(expr_A, exp_design_A$time, period = period)
 
-  circ_params_B <- compute_circ_params(y_B, exp_design_B$time, period = period)
+  circ_params_B <- compute_circ_params(expr_B, exp_design_B$time, period = period)
 
   rhythmic_in_A <- (rain_results$adj_p_val_A < rhythm_fdr) &
     (circ_params_A[, "amps"] > amp_cutoff)
@@ -102,15 +99,15 @@ compareRhythms_rain <- function(y, exp_design, period=24, rhythm_fdr = 0.05,
   assertthat::assert_that(sum(rhythmic_in_either) > 0,
                           msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
 
-  dodr_results <- DODR::robustDODR(t(y_A[rhythmic_in_either, ]),
-                                   t(y_B[rhythmic_in_either, ]),
+  dodr_results <- DODR::robustDODR(t(expr_A[rhythmic_in_either, ]),
+                                   t(expr_B[rhythmic_in_either, ]),
                                    times1 = exp_design_A$time,
                                    times2 = exp_design_B$time,
                                    norm = TRUE,
                                    period = period)
   dodr_results$adj_p_val <- stats::p.adjust(dodr_results$p.value, method = "BH")
 
-  results <- data.frame(symbol = rownames(y_A)[rhythmic_in_either],
+  results <- data.frame(symbol = rownames(expr_A)[rhythmic_in_either],
                         rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
                         rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
                         diff_rhythmic = dodr_results$adj_p_val < compare_fdr)
