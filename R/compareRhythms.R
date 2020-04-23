@@ -15,9 +15,10 @@
 #'   biologically relevant (default = 0.5)
 #' @param criterion The criterion used for model selection. These can be "aic"
 #'   or "bic" (default = "bic"). This is only used for method = "mod_sel".
-#' @param bayes_cutoff The minimum difference in BIC between two best models
-#'   that is termed meaningful. Genes with difference smaller than this cutoff
-#'   are deemed unclassifiable. This is only used for method = "mod_sel".
+#' @param schwartz_wt_cutoff The conditional probability that the best model is
+#'   the true model. Genes with a smaller conditional probability smaller than
+#'   this cutoff are deemed unclassifiable. This is only used for method =
+#'   "mod_sel". (default = 0.4)
 #' @param just_classify Boolena specifying whether genes must only be classified
 #'   (TRUE) or if the amplitude and phases of fits should also be returned
 #'   (FALSE)
@@ -26,7 +27,7 @@
 compareRhythms <- function(object, exp_design=NULL, method = "mod_sel",
                            period=24, rhythm_fdr = 0.05,
                            compare_fdr = 0.05, amp_cutoff = 0.5,
-                           criterion = "bic", bayes_cutoff = 2,
+                           criterion = "bic", schwartz_wt_cutoff = 0.6,
                            just_classify = TRUE) {
 
   if (is.null(exp_design)) {
@@ -61,7 +62,8 @@ compareRhythms <- function(object, exp_design=NULL, method = "mod_sel",
                                             exp_design = exp_design,
                                             period = period,
                                             amp_cutoff = amp_cutoff,
-                                            bayes_cutoff = bayes_cutoff,
+                                            criterion = criterion,
+                                            schwartz_wt_cutoff = schwartz_wt_cutoff,
                                             just_classify = just_classify),
     dodr = compareRhythms_rain(expr = expr,
                                exp_design = exp_design, period = period,
@@ -72,6 +74,7 @@ compareRhythms <- function(object, exp_design=NULL, method = "mod_sel",
     limma = compareRhythms_limma(eset = expr, exp_design = exp_design,
                                  period = period, rhythm_fdr = rhythm_fdr,
                                  amp_cutoff = amp_cutoff,
+                                 compare_fdr = compare_fdr,
                                  just_classify = just_classify),
     voom = compareRhythms_voom(counts = expr, exp_design = exp_design,
                                 period = period, rhythm_fdr = rhythm_fdr,

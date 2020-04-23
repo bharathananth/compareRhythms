@@ -13,9 +13,9 @@
 #'   biologically relevant (default = 0.5)
 #' @param criterion The criterion used for model selection. These can be "aic"
 #'   or "bic" (default = "bic")
-#' @param bayes_cutoff The minimum difference in BIC between two best models
-#'   that is termed meaningful. Genes with difference smaller than this cutoff
-#'   are deemed unclassifiable.
+#' @param schwartz_wt_cutoff The conditional probability that the best models is
+#'   the true model. Genes with a smaller conditional probability smaller than
+#'   this cutoff are deemed unclassifiable (default = 0.4).
 #' @param just_classify Logical to select whether p-values, amplitudes and
 #'   phases must be supressed in the results
 #' @return A data.frame with symbol, best linear model (termed category) and
@@ -24,7 +24,7 @@
 compareRhythms_model_select <- function(expr, exp_design, period = 24,
                                          amp_cutoff = 0.5,
                                          criterion = "bic",
-                                         bayes_cutoff = 2,
+                                         schwartz_wt_cutoff = 0.4,
                                          just_classify = TRUE) {
 
   group_id <- base::unique(exp_design$group)
@@ -63,10 +63,10 @@ compareRhythms_model_select <- function(expr, exp_design, period = 24,
 
   model_selection <- limma::selectModel(expr, design_list, criterion = criterion)
 
-  model_bayes_factor <- base::apply(model_selection$IC, 1,
-                                    function(x) base::diff(base::sort(x))[1])
+  model_post_prob <- base::apply(model_selection$IC, 1,
+                                    function(x) base::max(exp(-0.5*x)/sum(exp(-0.5*x))))
 
-  model_assignment <- model_selection$pref[model_bayes_factor >= bayes_cutoff]
+  model_assignment <- model_selection$pref[model_post_prob >= schwartz_wt_cutoff]
 
   assertthat::assert_that(assertthat::not_empty(model_assignment),
                           msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
@@ -92,7 +92,13 @@ compareRhythms_model_select <- function(expr, exp_design, period = 24,
                           results[, paste0(group_id[2], "_amp")])
 
   for (i in seq(nrow(results))) {
-    if (results[i, "category"] == "DR") {
+    if (results$max_amp[i] < amp_cutoff) {
+      results[i, "category"] <- "noR"
+      results[i, paste0(group_id[1], "_amp")] <- 0
+      results[i, paste0(group_id[1], "_phase")] <- 0
+      results[i, paste0(group_id[2], "_amp")] <- 0
+      results[i, paste0(group_id[2], "_phase")] <- 0
+    } else if (results[i, "category"] == "DR") {
       if (results[i, paste0(group_id[2], "_amp")] < amp_cutoff) {
         results[i, "category"] == "AR"
         results[i, paste0(group_id[2], "_amp")] <- 0
@@ -104,14 +110,6 @@ compareRhythms_model_select <- function(expr, exp_design, period = 24,
         results[i, paste0(group_id[1], "_amp")] <- 0
         results[i, paste0(group_id[1], "_phase")] <- 0
       }
-    }
-
-    if (results$max_amp[i] < amp_cutoff) {
-      results[i, "category"] <- "noR"
-      results[i, paste0(group_id[1], "_amp")] <- 0
-      results[i, paste0(group_id[1], "_phase")] <- 0
-      results[i, paste0(group_id[2], "_amp")] <- 0
-      results[i, paste0(group_id[2], "_phase")] <- 0
     }
   }
 
