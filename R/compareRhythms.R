@@ -19,16 +19,18 @@
 #'   the true model. Genes with a smaller conditional probability smaller than
 #'   this cutoff are deemed unclassifiable. This is only used for method =
 #'   "mod_sel". (default = 0.4)
-#' @param just_classify Boolena specifying whether genes must only be classified
+#' @param just_classify Boolean specifying whether genes must only be classified
 #'   (TRUE) or if the amplitude and phases of fits should also be returned
 #'   (FALSE)
+#' @param outliers Boolean specifying if weights must be computed for each
+#'   sample to account for outliers.
 #'
 #' @export
 compareRhythms <- function(object, exp_design=NULL, method = "mod_sel",
                            period=24, rhythm_fdr = 0.05,
                            compare_fdr = 0.05, amp_cutoff = 0.5,
                            criterion = "bic", schwartz_wt_cutoff = 0.6,
-                           just_classify = TRUE) {
+                           just_classify = TRUE, outliers = FALSE) {
 
   if (is.null(exp_design)) {
     assertthat::assert_that(
@@ -79,6 +81,6 @@ compareRhythms <- function(object, exp_design=NULL, method = "mod_sel",
     voom = compareRhythms_voom(counts = expr, exp_design = exp_design,
                                 period = period, rhythm_fdr = rhythm_fdr,
                                 amp_cutoff = amp_cutoff,
-                                just_classify = just_classify)
+                                just_classify = just_classify, outliers = outliers)
   )
 }
