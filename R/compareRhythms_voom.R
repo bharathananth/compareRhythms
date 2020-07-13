@@ -37,7 +37,7 @@ compareRhythms_voom <- function(counts, exp_design, period=24, rhythm_fdr = 0.05
 
   results <- compareRhythms_limma(v, exp_design, period = period, rhythm_fdr = rhythm_fdr,
                        compare_fdr = compare_fdr, amp_cutoff = amp_cutoff,
-                       just_classify = just_classify)
+                       just_classify = just_classify, rna_seq = TRUE)
 
   return(results)
 }

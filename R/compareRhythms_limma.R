@@ -9,12 +9,15 @@
 #'   (default = 0.05)
 #' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
 #'   biologically relevant
-#' @param just_classify Logical to select whether p-values, amplitudes and phases
-#'   must be supressed in the results
+#' @param just_classify Logical to select whether p-values, amplitudes and
+#'   phases must be supressed in the results
+#' @param rna_seq Indicates whether the data source is RNA-seq or microarray
+#'    (default = "False")
 
 compareRhythms_limma <- function(eset, exp_design, period = 24,
                                  rhythm_fdr = 0.05, compare_fdr = 0.05,
-                                 amp_cutoff = 0.5, just_classify = TRUE) {
+                                 amp_cutoff = 0.5, just_classify = TRUE,
+                                 rna_seq = FALSE) {
 
   group_id <- base::unique(exp_design$group)
   assertthat::are_equal(length(group_id), 2)
@@ -29,7 +32,7 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
   colnames(design) <- gsub(":", "_", colnames(design))
 
   fit <- limma::lmFit(eset, design)
-  fit <- limma::eBayes(fit, robust = TRUE, trend = TRUE)
+  fit <- limma::eBayes(fit, robust = TRUE, trend = !rna_seq)
 
   rhythmic_in_either <- limma::topTable(fit,
                                         coef = grep("phase", colnames(design)),
@@ -65,7 +68,7 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
 
   diff_rhy_fit <- limma::contrasts.fit(fit, diff_rhy_contrast)
 
-  diff_rhy_fit <- limma::eBayes(diff_rhy_fit, robust = TRUE, trend = TRUE)
+  diff_rhy_fit <- limma::eBayes(diff_rhy_fit, robust = TRUE, trend = !rna_seq)
 
   diff_rhy_results <- limma::topTable(diff_rhy_fit, number = Inf,
                                       sort.by = "none")
