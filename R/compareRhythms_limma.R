@@ -26,8 +26,16 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
                             inphase = cos(2 * pi * exp_design$time / period),
                             outphase = sin(2 * pi * exp_design$time / period))
 
-  design <- stats::model.matrix(~0 + group + group:inphase + group:outphase,
-                                data = exp_design)
+  if ("batch" %in% colnames(exp_design)) {
+
+    design <- stats::model.matrix(~group + group:inphase + group:outphase + batch,
+                                  data = exp_design)
+  } else {
+
+    design <- stats::model.matrix(~group + group:inphase + group:outphase,
+                                  data = exp_design)
+  }
+
   colnames(design) <- gsub("group", "", colnames(design))
   colnames(design) <- gsub(":", "_", colnames(design))
 

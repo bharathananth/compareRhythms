@@ -9,8 +9,8 @@
 #'   (default = 0.05)
 #' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
 #'   biologically relevant
-#' @param just_classify Logical to select whether p-values, amplitudes and phases
-#'   must be supressed in the results
+#' @param just_classify Logical to select whether p-values, amplitudes and
+#'   phases must be supressed in the results
 #' @param outliers Boolean specifying if weights must be computed for each
 #'   sample to account for outliers.
 
@@ -19,11 +19,19 @@ compareRhythms_voom <- function(counts, exp_design, period=24, rhythm_fdr = 0.05
                                  just_classify = TRUE, outliers = FALSE) {
 
   exp_design_aug <- base::cbind(exp_design,
-                            inphase = cos(2 * pi * exp_design$time / period),
-                            outphase = sin(2 * pi * exp_design$time / period))
+                                inphase = cos(2 * pi * exp_design$time / period),
+                                outphase = sin(2 * pi * exp_design$time / period))
 
-  design <- stats::model.matrix(~0 + group + group:inphase + group:outphase,
-                                data = exp_design_aug)
+  if ("batch" %in% colnames(exp_design)) {
+
+    design <- stats::model.matrix(~group + group:inphase + group:outphase + batch,
+                                  data = exp_design_aug)
+
+  } else {
+
+    design <- stats::model.matrix(~group + group:inphase + group:outphase,
+                                  data = exp_design_aug)
+  }
 
   y <- edgeR::DGEList(counts)
 
