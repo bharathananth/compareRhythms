@@ -15,9 +15,16 @@ compute_circ_params <- function(y, t, period) {
 
 }
 
-compute_model_params <- function(d, y, group_id) {
-  fit <- limma::lmFit(y, d)
-  coeffs <- fit$coefficients
+compute_model_params <- function(y, group_id, d=NULL, type="fit") {
+
+  if (type == "fit") {
+    fit <- limma::lmFit(y, d)
+    coeffs <- fit$coefficients
+  }
+  else if (type == "coef") {
+    coeffs <- y
+  }
+
   if (any(base::grepl(paste0(group_id[1], "_"),
                       colnames(coeffs)))) {
     rhy_params <- coeffs[, base::paste(group_id[1],

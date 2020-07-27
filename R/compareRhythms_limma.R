@@ -20,7 +20,6 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
                                  rna_seq = FALSE) {
 
   group_id <- base::unique(exp_design$group)
-  assertthat::are_equal(length(group_id), 2)
 
   exp_design <- base::cbind(exp_design,
                             inphase = cos(2 * pi * exp_design$time / period),
@@ -47,7 +46,7 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
                                         number = Inf,
                                         sort.by = "none")
 
-  results <- compute_model_params(design, eset, group_id)
+  results <- compute_model_params(eset, group_id, design)
 
   results <- data.frame(results)
 

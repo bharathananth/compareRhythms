@@ -72,7 +72,7 @@ compareRhythms_model_select <- function(expr, exp_design, period = 24,
                           msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
 
   model_circ_params <- base::lapply(design_list[-1],
-                              compute_model_params, expr, group_id)
+                              function(d) compute_model_params(expr, group_id, d))
 
   model_circ_params[["noR"]] <- matrix(0, nrow = nrow(expr), ncol = 4,
                                        dimnames = dimnames(model_circ_params[["ABR"]]))
