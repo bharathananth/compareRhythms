@@ -22,7 +22,7 @@ compareRhythms_rain <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
   exp_design <- base::cbind(exp_design,
                             col_number = base::seq(base::nrow(exp_design)))
 
-  group_id <- base::unique(exp_design$group)
+  group_id <- base::levels(exp_design$group)
   assertthat::are_equal(length(group_id), 2)
 
   exp_design_A <- exp_design[exp_design$group == group_id[1], ]

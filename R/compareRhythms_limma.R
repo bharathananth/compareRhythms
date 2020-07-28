@@ -19,7 +19,7 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
                                  amp_cutoff = 0.5, just_classify = TRUE,
                                  rna_seq = FALSE) {
 
-  group_id <- base::unique(exp_design$group)
+  group_id <- base::levels(exp_design$group)
 
   exp_design <- base::cbind(exp_design,
                             inphase = cos(2 * pi * exp_design$time / period),

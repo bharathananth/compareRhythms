@@ -27,7 +27,7 @@ compareRhythms_model_select <- function(expr, exp_design, period = 24,
                                          schwartz_wt_cutoff = 0.4,
                                          just_classify = TRUE) {
 
-  group_id <- base::unique(exp_design$group)
+  group_id <- base::levels(exp_design$group)
 
   exp_design <- base::cbind(exp_design,
                             inphase = cos(2 * pi * exp_design$time / period),
