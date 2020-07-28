@@ -4,6 +4,8 @@
 #' @param exp_design A data.frame of the experimental design with at least two
 #'   columns: "time" and "group". Ignored if object is a
 #'   \code{SummarizedExperiment} object.
+#' @param lengths A data.frame of average transcript lengths only used with
+#'   "deseq" method
 #' @param method The method of analysis. It should be one of "mod_sel": model
 #'   selection, "dodr": based on , limma", "voom".
 #' @param period The period of rhythm being tested (default = 24)
@@ -26,7 +28,7 @@
 #'   sample to account for outliers.
 #'
 #' @export
-compareRhythms <- function(object, exp_design=NULL, method = "mod_sel",
+compareRhythms <- function(object, exp_design=NULL, lengths=NULL, method = "mod_sel",
                            period=24, rhythm_fdr = 0.05,
                            compare_fdr = 0.05, amp_cutoff = 0.5,
                            criterion = "bic", schwartz_wt_cutoff = 0.6,
@@ -42,9 +44,12 @@ compareRhythms <- function(object, exp_design=NULL, method = "mod_sel",
       assertthat::noNA(SummarizedExperiment::assay(object, 1))
     )
     assertthat::assert_that(length(unique(SummarizedExperiment::colData(object)$group)) == 2,
-                       msg = "Data does not have exactly two groups")
+                            msg = "Data does not have exactly two groups")
     expr <- SummarizedExperiment::assay(object, 1)
     exp_design <- SummarizedExperiment::colData(object)
+    if ("lengths" %in% SummarizedExperiment::assayNames(object)) {
+      lengths <- SummarizedExperiment::assay(object, "lengths")
+    }
   } else {
     assertthat::assert_that(
       is.matrix(object),
@@ -56,31 +61,38 @@ compareRhythms <- function(object, exp_design=NULL, method = "mod_sel",
       assertthat::noNA(object),
       length(unique(exp_design$group)) == 2
     )
+    if (method == "deseq" && !is.null(lengths)) {
+      assertthat::assert_that(all(lengths>0), msg = "All transcript lengths are not positive")
+    }
     expr <- object
   }
 
   switch (method,
-    mod_sel = compareRhythms_model_select(expr = expr,
-                                            exp_design = exp_design,
-                                            period = period,
-                                            amp_cutoff = amp_cutoff,
-                                            criterion = criterion,
-                                            schwartz_wt_cutoff = schwartz_wt_cutoff,
-                                            just_classify = just_classify),
-    dodr = compareRhythms_rain(expr = expr,
-                               exp_design = exp_design, period = period,
-                               rhythm_fdr = rhythm_fdr,
-                               compare_fdr = compare_fdr,
-                               amp_cutoff = amp_cutoff,
-                               just_classify = just_classify),
-    limma = compareRhythms_limma(eset = expr, exp_design = exp_design,
-                                 period = period, rhythm_fdr = rhythm_fdr,
-                                 amp_cutoff = amp_cutoff,
-                                 compare_fdr = compare_fdr,
-                                 just_classify = just_classify),
-    voom = compareRhythms_voom(counts = expr, exp_design = exp_design,
-                                period = period, rhythm_fdr = rhythm_fdr,
-                                amp_cutoff = amp_cutoff,
-                                just_classify = just_classify, outliers = outliers)
+          mod_sel = compareRhythms_model_select(expr = expr,
+                                                exp_design = exp_design,
+                                                period = period,
+                                                amp_cutoff = amp_cutoff,
+                                                criterion = criterion,
+                                                schwartz_wt_cutoff = schwartz_wt_cutoff,
+                                                just_classify = just_classify),
+          dodr = compareRhythms_rain(expr = expr,
+                                     exp_design = exp_design, period = period,
+                                     rhythm_fdr = rhythm_fdr,
+                                     compare_fdr = compare_fdr,
+                                     amp_cutoff = amp_cutoff,
+                                     just_classify = just_classify),
+          limma = compareRhythms_limma(eset = expr, exp_design = exp_design,
+                                       period = period, rhythm_fdr = rhythm_fdr,
+                                       amp_cutoff = amp_cutoff,
+                                       compare_fdr = compare_fdr,
+                                       just_classify = just_classify),
+          voom = compareRhythms_voom(counts = expr, exp_design = exp_design,
+                                     period = period, rhythm_fdr = rhythm_fdr,
+                                     amp_cutoff = amp_cutoff,
+                                     just_classify = just_classify, outliers = outliers),
+          deseq = compareRhythms_deseq2(counts = expr, exp_design = exp_design,
+                                        lengths = lengths, period = period, rhythm_fdr = rhythm_fdr,
+                                        amp_cutoff = amp_cutoff, compare_fdr = compare_fdr,
+                                        just_classify = just_classify)
   )
 }
