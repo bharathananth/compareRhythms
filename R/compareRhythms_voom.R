@@ -14,9 +14,9 @@
 #' @param outliers Boolean specifying if weights must be computed for each
 #'   sample to account for outliers.
 
-compareRhythms_voom <- function(counts, exp_design, period=24, rhythm_fdr = 0.05,
-                                 compare_fdr = 0.05, amp_cutoff = 0.5,
-                                 just_classify = TRUE, outliers = FALSE) {
+compareRhythms_voom <- function(counts, exp_design, period, rhythm_fdr,
+                                compare_fdr, amp_cutoff, just_classify,
+                                robust, outliers) {
 
   exp_design_aug <- base::cbind(exp_design,
                                 inphase = cos(2 * pi * exp_design$time / period),
@@ -45,7 +45,7 @@ compareRhythms_voom <- function(counts, exp_design, period=24, rhythm_fdr = 0.05
 
   results <- compareRhythms_limma(v, exp_design, period = period, rhythm_fdr = rhythm_fdr,
                        compare_fdr = compare_fdr, amp_cutoff = amp_cutoff,
-                       just_classify = just_classify, rna_seq = TRUE)
+                       just_classify = just_classify, robust = robust, rna_seq = TRUE)
 
   return(results)
 }

@@ -14,10 +14,9 @@
 #' @param rna_seq Indicates whether the data source is RNA-seq or microarray
 #'    (default = "False")
 
-compareRhythms_limma <- function(eset, exp_design, period = 24,
-                                 rhythm_fdr = 0.05, compare_fdr = 0.05,
-                                 amp_cutoff = 0.5, just_classify = TRUE,
-                                 rna_seq = FALSE) {
+compareRhythms_limma <- function(eset, exp_design, period, rhythm_fdr,
+                                 compare_fdr, amp_cutoff, just_classify,
+                                 rna_seq, robust) {
 
   group_id <- base::levels(exp_design$group)
 
@@ -27,11 +26,11 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
 
   if ("batch" %in% colnames(exp_design)) {
 
-    design <- stats::model.matrix(~group + group:inphase + group:outphase + batch,
+    design <- stats::model.matrix(~0 + group + group:inphase + group:outphase + batch,
                                   data = exp_design)
   } else {
 
-    design <- stats::model.matrix(~group + group:inphase + group:outphase,
+    design <- stats::model.matrix(~0 + group + group:inphase + group:outphase,
                                   data = exp_design)
   }
 
@@ -39,7 +38,7 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
   colnames(design) <- gsub(":", "_", colnames(design))
 
   fit <- limma::lmFit(eset, design)
-  fit <- limma::eBayes(fit, robust = TRUE, trend = !rna_seq)
+  fit <- limma::eBayes(fit, robust = robust, trend = !rna_seq)
 
   rhythmic_in_either <- limma::topTable(fit,
                                         coef = grep("phase", colnames(design)),
@@ -75,7 +74,7 @@ compareRhythms_limma <- function(eset, exp_design, period = 24,
 
   diff_rhy_fit <- limma::contrasts.fit(fit, diff_rhy_contrast)
 
-  diff_rhy_fit <- limma::eBayes(diff_rhy_fit, robust = TRUE, trend = !rna_seq)
+  diff_rhy_fit <- limma::eBayes(diff_rhy_fit, robust = robust, trend = !rna_seq)
 
   diff_rhy_results <- limma::topTable(diff_rhy_fit, number = Inf,
                                       sort.by = "none")

@@ -14,9 +14,9 @@
 #' @param just_classify Logical to select whether p-values, amplitudes and
 #'   phases must be supressed in the results
 
-compareRhythms_deseq2 <- function(counts, exp_design, lengths=NULL, period=24, rhythm_fdr = 0.05,
-                                 compare_fdr = 0.05, amp_cutoff = 0.5,
-                                 just_classify = TRUE) {
+compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
+                                  rhythm_fdr, compare_fdr, amp_cutoff,
+                                  just_classify) {
 
   exp_design_aug <- base::cbind(exp_design,
                                 inphase = cos(2 * pi * exp_design$time / period),

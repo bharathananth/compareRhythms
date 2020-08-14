@@ -21,11 +21,10 @@
 #' @return A data.frame with symbol, best linear model (termed category) and
 #'   estimates of the amplitudes and phases for the two datasets
 
-compareRhythms_model_select <- function(expr, exp_design, period = 24,
-                                         amp_cutoff = 0.5,
-                                         criterion = "bic",
-                                         schwartz_wt_cutoff = 0.4,
-                                         just_classify = TRUE) {
+compareRhythms_model_select <- function(expr, exp_design, period,
+                                        amp_cutoff, criterion,
+                                        schwartz_wt_cutoff,
+                                        just_classify) {
 
   group_id <- base::levels(exp_design$group)
 
