@@ -13,6 +13,7 @@
 #'   phases must be supressed in the results
 #' @param rna_seq Indicates whether the data source is RNA-seq or microarray
 #'    (default = "False")
+#' @keywords internal
 
 compareRhythms_limma <- function(eset, exp_design, period, rhythm_fdr,
                                  compare_fdr, amp_cutoff, just_classify,

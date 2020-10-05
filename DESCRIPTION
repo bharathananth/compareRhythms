@@ -1,11 +1,15 @@
 Package: compareRhythms
 Type: Package
-Title: Implementation of Various Approaches to Differential Rhythmicity Analysis
+Title: Analyze Differential Rhythmicity
 Version: 0.1.0
 Author: Bharath Ananthasubramaniam
 Maintainer: Bharath Ananthasubramaniam <bharath.ananth@charite.de>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: This package identifies features that have altered rhythms 
+    between two conditions, i.e, are differentially rhythmic. The multiple 
+    pipelines are implemented as a single function with options to customize the
+    analysis for microarray ('limma') and RNA-seq ('limma-voom', 'DESeq2', 
+    'edgeR'). The 'DODR' and model-selection approaches permit application to 
+    other non-transcriptomic datasets.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

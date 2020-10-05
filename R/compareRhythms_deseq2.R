@@ -13,6 +13,7 @@
 #'   biologically relevant
 #' @param just_classify Logical to select whether p-values, amplitudes and
 #'   phases must be supressed in the results
+#' @keywords internal
 
 compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
                                   rhythm_fdr, compare_fdr, amp_cutoff,
@@ -39,7 +40,8 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
   mode(counts) <- "integer"
 
   dds <- DESeq2::DESeqDataSetFromMatrix(countData = counts,
-                                        colData = exp_design_aug, design = design)
+                                        colData = exp_design_aug,
+                                        design = design)
 
   if (!is.null(lengths)) {
     SummarizedExperiment::assays(dds)[["avgTxLength"]] <- lengths

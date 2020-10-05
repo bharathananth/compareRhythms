@@ -13,6 +13,7 @@
 #'   phases must be supressed in the results
 #' @param outliers Boolean specifying if weights must be computed for each
 #'   sample to account for outliers.
+#' @keywords internal
 
 compareRhythms_voom <- function(counts, exp_design, period, rhythm_fdr,
                                 compare_fdr, amp_cutoff, just_classify,

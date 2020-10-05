@@ -13,17 +13,18 @@
 #'   biologically relevant (default = 0.5)
 #' @param criterion The criterion used for model selection. These can be "aic"
 #'   or "bic" (default = "bic")
-#' @param schwartz_wt_cutoff The conditional probability that the best models is
+#' @param schwarz_wt_cutoff The conditional probability that the best models is
 #'   the true model. Genes with a smaller conditional probability smaller than
 #'   this cutoff are deemed unclassifiable (default = 0.4).
 #' @param just_classify Logical to select whether p-values, amplitudes and
 #'   phases must be supressed in the results
 #' @return A data.frame with symbol, best linear model (termed category) and
 #'   estimates of the amplitudes and phases for the two datasets
+#' @keywords internal
 
 compareRhythms_model_select <- function(expr, exp_design, period,
                                         amp_cutoff, criterion,
-                                        schwartz_wt_cutoff,
+                                        schwarz_wt_cutoff,
                                         just_classify) {
 
   group_id <- base::levels(exp_design$group)
@@ -37,35 +38,35 @@ compareRhythms_model_select <- function(expr, exp_design, period,
   colnames(design) <- gsub("group", "", colnames(design))
   colnames(design) <- gsub(":", "_", colnames(design))
 
-  design_DR <- design
+  design_change <- design
 
-  design_AR <- design[, !grepl(paste0(group_id[2], "_"),
+  design_loss <- design[, !grepl(paste0(group_id[2], "_"),
                                colnames(design))]
 
-  design_BR <- design[, !grepl(paste0(group_id[1], "_"),
+  design_gain <- design[, !grepl(paste0(group_id[1], "_"),
                                colnames(design))]
 
-  design_ABR <- stats::model.matrix(~0 + group + inphase + outphase,
+  design_same <- stats::model.matrix(~0 + group + inphase + outphase,
                                     data = exp_design)
 
-  colnames(design_ABR) <- base::gsub("group", "", colnames(design_ABR))
+  colnames(design_same) <- base::gsub("group", "", colnames(design_same))
 
   design_noR <- stats::model.matrix(~0 + group, data = exp_design)
 
   colnames(design_noR) <- gsub("group", "", colnames(design_noR))
 
-  design_list <- list(noR = design_noR,
-                      AR = design_AR,
-                      BR = design_BR,
-                      ABR = design_ABR,
-                      DR = design_DR)
+  design_list <- list(arrhy = design_noR,
+                      loss = design_loss,
+                      gain = design_gain,
+                      same = design_same,
+                      change = design_change)
 
   model_selection <- limma::selectModel(expr, design_list, criterion = criterion)
 
   model_post_prob <- base::apply(model_selection$IC, 1,
                                     function(x) base::max(exp(-0.5*x)/sum(exp(-0.5*x))))
 
-  model_assignment <- model_selection$pref[model_post_prob >= schwartz_wt_cutoff]
+  model_assignment <- model_selection$pref[model_post_prob >= schwarz_wt_cutoff]
 
   assertthat::assert_that(assertthat::not_empty(model_assignment),
                           msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
@@ -73,8 +74,8 @@ compareRhythms_model_select <- function(expr, exp_design, period,
   model_circ_params <- base::lapply(design_list[-1],
                               function(d) compute_model_params(expr, group_id, d))
 
-  model_circ_params[["noR"]] <- matrix(0, nrow = nrow(expr), ncol = 4,
-                                       dimnames = dimnames(model_circ_params[["ABR"]]))
+  model_circ_params[["arrhy"]] <- matrix(0, nrow = nrow(expr), ncol = 4,
+                                       dimnames = dimnames(model_circ_params[["same"]]))
 
   circ_params <- base::vapply(model_assignment,
                               function(m) {
@@ -92,20 +93,20 @@ compareRhythms_model_select <- function(expr, exp_design, period,
 
   for (i in seq(nrow(results))) {
     if (results$max_amp[i] < amp_cutoff) {
-      results[i, "category"] <- "noR"
+      results[i, "category"] <- "arrhy"
       results[i, paste0(group_id[1], "_amp")] <- 0
       results[i, paste0(group_id[1], "_phase")] <- 0
       results[i, paste0(group_id[2], "_amp")] <- 0
       results[i, paste0(group_id[2], "_phase")] <- 0
-    } else if (results[i, "category"] == "DR") {
+    } else if (results[i, "category"] == "change") {
       if (results[i, paste0(group_id[2], "_amp")] < amp_cutoff) {
-        results[i, "category"] == "AR"
+        results[i, "category"] == "loss"
         results[i, paste0(group_id[2], "_amp")] <- 0
         results[i, paste0(group_id[2], "_phase")] <- 0
       }
 
       if (results[i, paste0(group_id[1], "_amp")] < amp_cutoff) {
-        results[i, "category"] == "BR"
+        results[i, "category"] == "gain"
         results[i, paste0(group_id[1], "_amp")] <- 0
         results[i, paste0(group_id[1], "_phase")] <- 0
       }

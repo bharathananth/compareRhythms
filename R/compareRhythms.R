@@ -1,4 +1,4 @@
-#' Run differential rhythmicity analysis on microarray or RNA-seq data
+#' Run differential rhythmicity analysis
 #' @param object A matrix of log2 expression values (if microarray), expression
 #'   counts (RNA-seq) or a \linkS4class{SummarizedExperiment} object.
 #' @param exp_design A data.frame of the experimental design with at least two
@@ -20,7 +20,7 @@
 #'   considered biologically relevant (default = 0.5)
 #' @param criterion The criterion used for model selection. These can be "aic"
 #'   or "bic" (default = "bic"). Only used for method = "mod_sel".
-#' @param schwartz_wt_cutoff The conditional probability that the best model is
+#' @param schwarz_wt_cutoff The conditional probability that the best model is
 #'   the true model. Genes with a conditional probability smaller than this
 #'   cutoff are deemed unclassifiable. This is only used for method = "mod_sel".
 #'   (default = 0.4)
@@ -36,7 +36,7 @@
 compareRhythms <- function(object, exp_design=NULL, lengths=NULL,
                            method = "mod_sel", period=24, rhythm_fdr = 0.05,
                            compare_fdr = 0.05, amp_cutoff = 0.5,
-                           criterion = "bic", schwartz_wt_cutoff = 0.6,
+                           criterion = "bic", schwarz_wt_cutoff = 0.6,
                            just_classify = TRUE, robust = TRUE, outliers = FALSE,
                            rna_seq = FALSE) {
 
@@ -88,8 +88,8 @@ compareRhythms <- function(object, exp_design=NULL, lengths=NULL,
     amp_cutoff >= 0,
     assertthat::is.string(criterion),
     criterion %in% c("bic", "aic"),
-    assertthat::is.number(schwartz_wt_cutoff),
-    schwartz_wt_cutoff >=0 & schwartz_wt_cutoff <=1.0,
+    assertthat::is.number(schwarz_wt_cutoff),
+    schwarz_wt_cutoff >=0 & schwarz_wt_cutoff <=1.0,
     assertthat::is.flag(just_classify),
     assertthat::is.flag(robust),
     assertthat::is.flag(outliers)
@@ -101,9 +101,9 @@ compareRhythms <- function(object, exp_design=NULL, lengths=NULL,
                                                 period = period,
                                                 amp_cutoff = amp_cutoff,
                                                 criterion = criterion,
-                                                schwartz_wt_cutoff = schwartz_wt_cutoff,
+                                                schwarz_wt_cutoff = schwarz_wt_cutoff,
                                                 just_classify = just_classify),
-          dodr = compareRhythms_rain(expr = expr,
+          dodr = compareRhythms_dodr(expr = expr,
                                      exp_design = exp_design,
                                      period = period,
                                      rhythm_fdr = rhythm_fdr,

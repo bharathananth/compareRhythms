@@ -14,8 +14,9 @@
 #'   phases must be supressed in the results
 #' @return A data.frame with the symbol, boolean results of the rhythmicity
 #'   tests and (optionally) the p-values and circadian parameters.
+#' @keywords internal
 
-compareRhythms_rain <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
+compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
                                 compare_fdr = 0.05, amp_cutoff = 0.5,
                                 just_classify = TRUE) {
 

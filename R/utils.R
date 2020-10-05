@@ -67,13 +67,13 @@ compute_model_params <- function(y, group_id, d=NULL, type="fit") {
 
 categorize <- function(a, b, dr) {
   if (a && !b && dr) {
-    category <- "AR"
+    category <- "loss"
   } else if (!a && b && dr) {
-    category <- "BR"
+    category <- "gain"
   } else if (a && b && dr) {
-    category <- "DR"
+    category <- "change"
   } else {
-    category <- "ABR"
+    category <- "same"
   }
   return(category)
 }
