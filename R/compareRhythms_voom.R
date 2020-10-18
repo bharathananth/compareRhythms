@@ -1,18 +1,7 @@
 #' Run differential rhythmicity analysis for RNA-seq data using limma-voom
-#' @param counts A count matrix with gene in the rows and samples in columns
-#' @param exp_design A data.frame of the experimental design with at least
-#'   columns sample name, time point and group
-#' @param period The period of rhythm being tested (default = 24)
-#' @param rhythm_fdr The false discovery cutoff for finding rhythmic time series
-#'   (default = 0.05)
-#' @param compare_fdr The false discovery cutoff for the comparison of rhythms
-#'   (default = 0.05)
-#' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
-#'   biologically relevant
-#' @param just_classify Logical to select whether p-values, amplitudes and
-#'   phases must be supressed in the results
-#' @param outliers Boolean specifying if weights must be computed for each
-#'   sample to account for outliers.
+#'
+#' @param counts A matrix of  expression counts
+#' @inheritParams compareRhythms
 #' @keywords internal
 
 compareRhythms_voom <- function(counts, exp_design, period, rhythm_fdr,

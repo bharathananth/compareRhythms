@@ -1,23 +1,12 @@
 #' Run differential rhythmicity analysis for microarray using limma
-#' @param eset A matrix with gene in the rows and samples in columns
-#' @param exp_design A data.frame of the experimental design with at least
-#'   columns sample name, time point and group
-#' @param period The period of rhythm being tested (default = 24)
-#' @param rhythm_fdr The false discovery cutoff for finding rhythmic time series
-#'   (default = 0.05)
-#' @param compare_fdr The false discovery cutoff for the comparison of rhythms
-#'   (default = 0.05)
-#' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
-#'   biologically relevant
-#' @param just_classify Logical to select whether p-values, amplitudes and
-#'   phases must be supressed in the results
-#' @param rna_seq Indicates whether the data source is RNA-seq or microarray
-#'    (default = "False")
+#'
+#' @param eset A matrix of expression values with gene in the rows and samples in columns
+#' @inheritParams compareRhythms
 #' @keywords internal
 
 compareRhythms_limma <- function(eset, exp_design, period, rhythm_fdr,
                                  compare_fdr, amp_cutoff, just_classify,
-                                 rna_seq, robust) {
+                                 robust, rna_seq) {
 
   group_id <- base::levels(exp_design$group)
 

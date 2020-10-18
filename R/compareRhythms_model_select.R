@@ -4,25 +4,10 @@
 #' Atger et al. (2015) for identifying timeseries with different rhythms in the
 #' two datasets.
 #'
-#' @param expr A matrix with gene in the rows and samples in columns containing
-#'   data from both datasets
-#' @param exp_design A data.frame of the experimental design with at least
-#'   columns sample name, time point and group
-#' @param period The period of rhythm being tested (default = 24)
-#' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
-#'   biologically relevant (default = 0.5)
-#' @param criterion The criterion used for model selection. These can be "aic"
-#'   or "bic" (default = "bic")
-#' @param schwarz_wt_cutoff The conditional probability that the best models is
-#'   the true model. Genes with a smaller conditional probability smaller than
-#'   this cutoff are deemed unclassifiable (default = 0.4).
-#' @param just_classify Logical to select whether p-values, amplitudes and
-#'   phases must be supressed in the results
-#' @return A data.frame with symbol, best linear model (termed category) and
-#'   estimates of the amplitudes and phases for the two datasets
+#' @inheritParams compareRhythms
 #' @keywords internal
 
-compareRhythms_model_select <- function(expr, exp_design, period,
+compareRhythms_model_select <- function(data, exp_design, period,
                                         amp_cutoff, criterion,
                                         schwarz_wt_cutoff,
                                         just_classify) {
@@ -61,7 +46,7 @@ compareRhythms_model_select <- function(expr, exp_design, period,
                       same = design_same,
                       change = design_change)
 
-  model_selection <- limma::selectModel(expr, design_list, criterion = criterion)
+  model_selection <- limma::selectModel(data, design_list, criterion = criterion)
 
   model_post_prob <- base::apply(model_selection$IC, 1,
                                     function(x) base::max(exp(-0.5*x)/sum(exp(-0.5*x))))
@@ -72,9 +57,9 @@ compareRhythms_model_select <- function(expr, exp_design, period,
                           msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
 
   model_circ_params <- base::lapply(design_list[-1],
-                              function(d) compute_model_params(expr, group_id, d))
+                              function(d) compute_model_params(data, group_id, d))
 
-  model_circ_params[["arrhy"]] <- matrix(0, nrow = nrow(expr), ncol = 4,
+  model_circ_params[["arrhy"]] <- matrix(0, nrow = nrow(data), ncol = 4,
                                        dimnames = dimnames(model_circ_params[["same"]]))
 
   circ_params <- base::vapply(model_assignment,
@@ -83,13 +68,16 @@ compareRhythms_model_select <- function(expr, exp_design, period,
                               },
                               FUN.VALUE = double(4))
 
-  results <- data.frame(t(circ_params))
+  results <- data.frame(t(circ_params), stringsAsFactors = FALSE)
   results <- base::cbind(symbol = names(model_assignment),
                          results,
-                         category = unname(model_assignment))
+                         category = unname(model_assignment),
+                         stringsAsFactors=FALSE)
 
   results$max_amp <- pmax(results[, paste0(group_id[1], "_amp")],
                           results[, paste0(group_id[2], "_amp")])
+
+  results$weights <- model_post_prob[model_post_prob >= schwarz_wt_cutoff]
 
   for (i in seq(nrow(results))) {
     if (results$max_amp[i] < amp_cutoff) {

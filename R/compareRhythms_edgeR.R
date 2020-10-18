@@ -1,11 +1,11 @@
-#' Run differential rhythmicity analysis for RNA-seq data using DESeq2
+#' Run differential rhythmicity analysis for RNA-seq data using edgeR
 #'
 #' @inheritParams compareRhythms
 #' @keywords internal
 
-compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
-                                  rhythm_fdr, compare_fdr, amp_cutoff,
-                                  just_classify) {
+compareRhythms_edgeR <- function(counts, exp_design, lengths, period,
+                                 rhythm_fdr, compare_fdr, amp_cutoff,
+                                 just_classify) {
 
   exp_design_aug <- base::cbind(exp_design,
                                 inphase = cos(2 * pi * exp_design$time / period),
@@ -25,25 +25,37 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
   colnames(design) <- gsub("group", "", colnames(design))
   colnames(design) <- gsub(":", "_", colnames(design))
 
-  mode(counts) <- "integer"
-
-  dds <- DESeq2::DESeqDataSetFromMatrix(countData = counts,
-                                        colData = exp_design_aug,
-                                        design = design)
-
-  if (!is.null(lengths)) {
-    SummarizedExperiment::assays(dds)[["avgTxLength"]] <- lengths
+  if (is.null(lengths)) {
+    lengths <- matrix(1, NROW(counts), NCOL(counts))
   }
 
-  dds <- DESeq2::DESeq(dds, test = "LRT",
-                       reduced = design[, !grepl("phase", colnames(design))],
-                       quiet = TRUE)
+  normMat <- lengths
+  normMat <- normMat/exp(base::rowMeans(log(normMat)))
+  normCts <- counts/normMat
+
+  eff.lib <- edgeR::calcNormFactors(normCts) * base::colSums(normCts)
+
+  normMat <- sweep(normMat, 2, eff.lib, "*")
+  normMat <- log(normMat)
+
+  y <- edgeR::DGEList(counts)
+  y <- edgeR::scaleOffset(y, normMat)
+
+  y <- edgeR::estimateDisp(y, design, robust = TRUE)
+
+  fit <- edgeR::glmQLFit(y, design, robust = TRUE)
 
   group_id <- base::levels(exp_design$group)
 
-  rhythmic_in_either <- DESeq2::results(dds, independentFiltering = FALSE)
+  qlf <- edgeR::glmQLFTest(fit, coef = grep("phase", colnames(design)))
 
-  results <- compute_model_params(stats::coef(dds), group_id, type = "coef")
+  rhythmic_in_either <- edgeR::topTags(qlf, n = Inf, sort.by = "none")
+
+  rhythmic_in_either <- data.frame(rhythmic_in_either)
+
+  colnames(rhythmic_in_either) <- base::gsub("logFC.", "", colnames(rhythmic_in_either))
+
+  results <- compute_model_params(rhythmic_in_either, group_id, type = "coef")
 
   results <- data.frame(results)
 
@@ -54,7 +66,7 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
   results$max_amp <- pmax(results[, paste0(group_id[1], "_amp")],
                           results[, paste0(group_id[2], "_amp")])
 
-  results$adj_p_val_A_or_B <- rhythmic_in_either$padj
+  results$adj_p_val_A_or_B <- rhythmic_in_either$FDR
 
   results <- results[(results$adj_p_val_A_or_B < rhythm_fdr) &
                        (results$max_amp > amp_cutoff), ]
@@ -64,28 +76,21 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
 
   results$max_amp <- NULL
 
-  if ("batch" %in% colnames(exp_design)) {
+  contrasts <- c(paste0(group_id, "_inphase", collapse = "-"),
+                 paste0(group_id, "_outphase", collapse = "-"))
 
-    design <- stats::model.matrix(~group + group*(inphase + outphase) + batch,
-                                  data = exp_design_aug, contrasts=list(group="contr.treatment"))
+  diff_rhy_contrast <- limma::makeContrasts(contrasts = contrasts,
+                                            levels = design)
 
-  } else {
+  diff_rhy_fit <- edgeR::glmQLFTest(fit, contrast = diff_rhy_contrast)
 
-    design <- stats::model.matrix(~group + group*(inphase + outphase),
-                                  data = exp_design_aug, contrasts=list(group="contr.treatment"))
-  }
+  diff_rhy_results <- edgeR::topTags(diff_rhy_fit, n = Inf, sort.by = "none")
 
-
-  diff_rhy_fit <- DESeq2::DESeq(dds, test = "LRT",
-                                reduced = design[, !grepl(":\\w+phase", colnames(design))],
-                                quiet = TRUE)
-
-
-  diff_rhy_results <- DESeq2::results(diff_rhy_fit, independentFiltering = FALSE)
+  diff_rhy_results <- data.frame(diff_rhy_results)
 
   diff_rhy_results <- diff_rhy_results[rownames(diff_rhy_results) %in% results$symbol, ]
 
-  results$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$pvalue,
+  results$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$PValue,
                                           method = "BH")
   results$diff_rhythmic <- results$adj_p_val_DR < compare_fdr
 

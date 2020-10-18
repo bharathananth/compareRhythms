@@ -1,19 +1,7 @@
 #' Run differential rhythmicity analysis defined in Thaben & Westermark
 #'
 #' @param expr A matrix of expression values with gene in the rows and samples in columns
-#' @param exp_design A data.frame of the experimental design with at least
-#'   columns sample name, time point and group
-#' @param period The period of rhythm being tested (default = 24)
-#' @param rhythm_fdr The false discovery cutoff for finding rhythmic time series
-#'   (default = 0.05)
-#' @param compare_fdr The false discovery cutoff for the comparison of rhythms
-#'   (default = 0.05)
-#' @param amp_cutoff The minimum peak-to-trough amp in log2 scale considered
-#'   biologically relevant
-#' @param just_classify Logical to select whether p-values, amplitudes and
-#'   phases must be supressed in the results
-#' @return A data.frame with the symbol, boolean results of the rhythmicity
-#'   tests and (optionally) the p-values and circadian parameters.
+#' @inheritParams compareRhythms
 #' @keywords internal
 
 compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
@@ -111,7 +99,8 @@ compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
   results <- data.frame(symbol = rownames(expr_A)[rhythmic_in_either],
                         rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
                         rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
-                        diff_rhythmic = dodr_results$adj_p_val < compare_fdr)
+                        diff_rhythmic = dodr_results$adj_p_val < compare_fdr,
+                        stringsAsFactors = FALSE)
   rownames(results) <- NULL
 
   results$category <- base::mapply(categorize,
