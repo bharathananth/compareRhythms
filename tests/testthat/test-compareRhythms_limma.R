@@ -1,24 +1,23 @@
 
 context("compareRhythms_limma")
 
-y <- readRDS("y.RDS")
-exp_design <- readRDS("exp_design.RDS")
+load("test_data_ma.rda")
 
 test_that("limma analysis works for default params", {
-  results <- compareRhythms_limma(y, exp_design)
+  results <- compareRhythms(expr, exp_design, method = "limma")
   expect_s3_class(results, "data.frame")
   expect_named(results,
                c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category"))
 })
 
 test_that("limma analysis works for different input params", {
-  expect_error(compareRhythms_limma(y, exp_design, period = 12))
-  expect_s3_class(compareRhythms_limma(y, exp_design, rhythm_fdr = 0.01), "data.frame")
-  expect_s3_class(compareRhythms_limma(y, exp_design, compare_fdr = 0.01), "data.frame")
-  expect_s3_class(compareRhythms_limma(y, exp_design, rhythm_fdr = 0.1, compare_fdr = 0.01), "data.frame")
-  expect_s3_class(compareRhythms_limma(y, exp_design, amp_cutoff = 0), "data.frame")
-  expect_error(compareRhythms_limma(y, exp_design, rhythm_fdr = 0))
-  results <- compareRhythms_limma(y, exp_design, just_classify = FALSE)
+  expect_error(compareRhythms(expr, exp_design, period = 12, method = "limma"))
+  expect_s3_class(compareRhythms(expr, exp_design, rhythm_fdr = 0.01, method = "limma"), "data.frame")
+  expect_s3_class(compareRhythms(expr, exp_design, compare_fdr = 0.01, method = "limma"), "data.frame")
+  expect_s3_class(compareRhythms(expr, exp_design, rhythm_fdr = 0.1, compare_fdr = 0.01, method = "limma"), "data.frame")
+  expect_s3_class(compareRhythms(expr, exp_design, amp_cutoff = 0, method = "limma"), "data.frame")
+  expect_error(compareRhythms(expr, exp_design, rhythm_fdr = 0, method = "limma"))
+  results <- compareRhythms(expr, exp_design, just_classify = FALSE, method = "limma")
   expect_s3_class(results, "data.frame")
   expect_named(results,
                c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category", "CC_amp",
@@ -27,9 +26,9 @@ test_that("limma analysis works for different input params", {
 })
 
 test_that("limma analysis runs for arrhythmic dataset", {
-  dim_y <- dim(y)
+  dim_y <- dim(expr)
   y_null <- matrix(0, nrow = dim_y[1], ncol = dim_y[2])
-  colnames(y_null) <- colnames(y)
-  rownames(y_null) <- rownames(y)
-  expect_error(compareRhythms_limma(y_null, exp_design))
+  colnames(y_null) <- colnames(expr)
+  rownames(y_null) <- rownames(expr)
+  expect_error(compareRhythms(y_null, exp_design, method = "limma"))
 })
