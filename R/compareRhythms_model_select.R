@@ -18,8 +18,24 @@ compareRhythms_model_select <- function(data, exp_design, period,
                             inphase = cos(2 * pi * exp_design$time / period),
                             outphase = sin(2 * pi * exp_design$time / period))
 
-  design <- stats::model.matrix(~0 + group + group:inphase + group:outphase,
-                                data = exp_design)
+  if ("batch" %in% colnames(exp_design)) {
+
+    design <- stats::model.matrix(~group + group:inphase + group:outphase + batch,
+                                  data = exp_design)
+    design_same <- stats::model.matrix(~group + inphase + outphase + batch,
+                                       data = exp_design)
+    design_noR <- stats::model.matrix(~group + batch, data = exp_design)
+
+  } else {
+
+    design <- stats::model.matrix(~group + group:inphase + group:outphase,
+                                  data = exp_design)
+    design_same <- stats::model.matrix(~group + inphase + outphase,
+                                       data = exp_design)
+    design_noR <- stats::model.matrix(~group, data = exp_design)
+
+  }
+
   colnames(design) <- gsub("group", "", colnames(design))
   colnames(design) <- gsub(":", "_", colnames(design))
 
@@ -31,12 +47,7 @@ compareRhythms_model_select <- function(data, exp_design, period,
   design_gain <- design[, !grepl(paste0(group_id[1], "_"),
                                colnames(design))]
 
-  design_same <- stats::model.matrix(~0 + group + inphase + outphase,
-                                    data = exp_design)
-
   colnames(design_same) <- base::gsub("group", "", colnames(design_same))
-
-  design_noR <- stats::model.matrix(~0 + group, data = exp_design)
 
   colnames(design_noR) <- gsub("group", "", colnames(design_noR))
 
