@@ -80,7 +80,7 @@ compareRhythms_model_select <- function(data, exp_design, period,
                               FUN.VALUE = double(4))
 
   results <- data.frame(t(circ_params), stringsAsFactors = FALSE)
-  results <- base::cbind(symbol = names(model_assignment),
+  results <- base::cbind(id = names(model_assignment),
                          results,
                          category = unname(model_assignment),
                          stringsAsFactors=FALSE)
@@ -117,7 +117,7 @@ compareRhythms_model_select <- function(data, exp_design, period,
   colnames(results) <- gsub("A", group_id[1], colnames(results))
   colnames(results) <- gsub("B", group_id[2], colnames(results))
 
-  main_cols <- c("symbol", "category")
+  main_cols <- c("id", "category")
   if (just_classify) {
     results <- results[, main_cols]
   } else {

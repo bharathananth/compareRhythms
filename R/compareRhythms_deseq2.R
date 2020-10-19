@@ -47,7 +47,7 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
 
   results <- data.frame(results)
 
-  results$symbol <- rownames(results)
+  results$id <- rownames(results)
 
   rownames(results) <- NULL
 
@@ -83,7 +83,7 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
 
   diff_rhy_results <- DESeq2::results(diff_rhy_fit, independentFiltering = FALSE)
 
-  diff_rhy_results <- diff_rhy_results[rownames(diff_rhy_results) %in% results$symbol, ]
+  diff_rhy_results <- diff_rhy_results[rownames(diff_rhy_results) %in% results$id, ]
 
   results$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$pvalue,
                                           method = "BH")
@@ -98,7 +98,7 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
                                    results$rhythmic_in_B,
                                    results$diff_rhythmic)
 
-  main_cols <- c("symbol", "rhythmic_in_A", "rhythmic_in_B",
+  main_cols <- c("id", "rhythmic_in_A", "rhythmic_in_B",
                  "diff_rhythmic", "category")
 
   results <- results[, c(main_cols,

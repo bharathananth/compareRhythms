@@ -96,7 +96,7 @@ compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
                                    period = period)
   dodr_results$adj_p_val <- stats::p.adjust(dodr_results$p.value, method = "BH")
 
-  results <- data.frame(symbol = rownames(expr_A)[rhythmic_in_either],
+  results <- data.frame(id = rownames(expr_A)[rhythmic_in_either],
                         rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
                         rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
                         diff_rhythmic = dodr_results$adj_p_val < compare_fdr,

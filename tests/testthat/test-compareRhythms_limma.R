@@ -9,12 +9,12 @@ test_that("limma analysis works for default params", {
   results <- compareRhythms(expr, exp_design, method = "limma")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category"))
+               c("id", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category"))
 
   results <- compareRhythms(expr, exp_design_batch, method = "limma")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category"))
+               c("id", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category"))
 })
 
 test_that("limma analysis works for different input params", {
@@ -27,7 +27,7 @@ test_that("limma analysis works for different input params", {
   results <- compareRhythms(expr, exp_design, just_classify = FALSE, method = "limma")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category", "CC_amp",
+               c("id", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category", "CC_amp",
                  "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC_or_KD",
                  "adj_p_val_DR"))
 })
@@ -42,7 +42,7 @@ test_that("limma analysis works for different input params with batch", {
   results <- compareRhythms(expr, exp_design_batch, just_classify = FALSE, method = "limma")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category", "CC_amp",
+               c("id", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category", "CC_amp",
                  "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC_or_KD",
                  "adj_p_val_DR"))
 })

@@ -7,7 +7,7 @@ exp_design_batch <- cbind(exp_design, batch = ifelse(seq(nrow(exp_design)) %% 2,
 test_that("model selection works for default params", {
   results <- compareRhythms(expr, exp_design, method = "mod_sel")
   expect_s3_class(results, "data.frame")
-  expect_named(results, c("symbol", "category"))
+  expect_named(results, c("id", "category"))
   results <- compareRhythms(expr, exp_design_batch, method = "mod_sel")
   expect_s3_class(results, "data.frame")
 })
@@ -20,7 +20,7 @@ test_that("model selection works for different input params", {
   expect_s3_class(compareRhythms(expr, exp_design, criterion = "aic", schwarz_wt_cutoff = 0.1, method = "mod_sel"), "data.frame")
   results <- compareRhythms(expr, exp_design, just_classify = FALSE, method = "mod_sel")
   expect_s3_class(results, "data.frame")
-  expect_named(results, c("symbol", "category", "CC_amp", "CC_phase", "KD_amp", "KD_phase", "weights"))
+  expect_named(results, c("id", "category", "CC_amp", "CC_phase", "KD_amp", "KD_phase", "weights"))
 })
 
 test_that("model selection works for different input params with batch", {
@@ -29,7 +29,7 @@ test_that("model selection works for different input params with batch", {
   expect_s3_class(compareRhythms(expr, exp_design_batch, criterion = "aic", method = "mod_sel"), "data.frame")
   results <- compareRhythms(expr, exp_design_batch, just_classify = FALSE, method = "mod_sel")
   expect_s3_class(results, "data.frame")
-  expect_named(results, c("symbol", "category", "CC_amp", "CC_phase", "KD_amp", "KD_phase", "weights"))
+  expect_named(results, c("id", "category", "CC_amp", "CC_phase", "KD_amp", "KD_phase", "weights"))
 })
 
 test_that("model selection runs for arrhythmic dataset", {
