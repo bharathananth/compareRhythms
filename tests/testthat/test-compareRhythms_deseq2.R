@@ -2,12 +2,24 @@ context("compareRhythms_deseq2")
 
 load("test_data_rnaseq.rda")
 
+exp_design_batch <- cbind(exp_design, batch)
+
 test_that("DESeq2 analysis works for default params", {
   results <- compareRhythms(countsFromAbundance, exp_design, method = "deseq2")
   expect_s3_class(results, "data.frame")
   expect_named(results,
                c("symbol", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
   results <- compareRhythms(counts, exp_design, lengths = lengths, method = "deseq2")
+  expect_s3_class(results, "data.frame")
+  expect_named(results,
+               c("symbol", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
+
+  results <- compareRhythms(counts, exp_design_batch, lengths = lengths, method = "deseq2")
+  expect_s3_class(results, "data.frame")
+  expect_named(results,
+               c("symbol", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
+
+  results <- compareRhythms(countsFromAbundance, exp_design_batch, method = "deseq2")
   expect_s3_class(results, "data.frame")
   expect_named(results,
                c("symbol", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))

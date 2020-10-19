@@ -3,8 +3,15 @@ context("compareRhythms_limma")
 
 load("test_data_ma.rda")
 
+exp_design_batch <- cbind(exp_design, batch = ifelse(seq(nrow(exp_design)) %% 2, "a", "b"))
+
 test_that("limma analysis works for default params", {
   results <- compareRhythms(expr, exp_design, method = "limma")
+  expect_s3_class(results, "data.frame")
+  expect_named(results,
+               c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category"))
+
+  results <- compareRhythms(expr, exp_design_batch, method = "limma")
   expect_s3_class(results, "data.frame")
   expect_named(results,
                c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category"))
@@ -18,6 +25,21 @@ test_that("limma analysis works for different input params", {
   expect_s3_class(compareRhythms(expr, exp_design, amp_cutoff = 0, method = "limma"), "data.frame")
   expect_error(compareRhythms(expr, exp_design, rhythm_fdr = 0, method = "limma"))
   results <- compareRhythms(expr, exp_design, just_classify = FALSE, method = "limma")
+  expect_s3_class(results, "data.frame")
+  expect_named(results,
+               c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category", "CC_amp",
+                 "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC_or_KD",
+                 "adj_p_val_DR"))
+})
+
+test_that("limma analysis works for different input params with batch", {
+  expect_error(compareRhythms(expr, exp_design_batch, period = 12, method = "limma"))
+  expect_s3_class(compareRhythms(expr, exp_design_batch, rhythm_fdr = 0.01, method = "limma"), "data.frame")
+  expect_s3_class(compareRhythms(expr, exp_design_batch, compare_fdr = 0.01, method = "limma"), "data.frame")
+  expect_s3_class(compareRhythms(expr, exp_design_batch, rhythm_fdr = 0.1, compare_fdr = 0.01, method = "limma"), "data.frame")
+  expect_s3_class(compareRhythms(expr, exp_design_batch, amp_cutoff = 0, method = "limma"), "data.frame")
+  expect_error(compareRhythms(expr, exp_design_batch, rhythm_fdr = 0, method = "limma"))
+  results <- compareRhythms(expr, exp_design_batch, just_classify = FALSE, method = "limma")
   expect_s3_class(results, "data.frame")
   expect_named(results,
                c("symbol", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category", "CC_amp",
