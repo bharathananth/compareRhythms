@@ -1,11 +1,15 @@
-## code to prepare `high_fat_diet_ma` dataset goes here
 suppressPackageStartupMessages(library(GEOquery))
 library(magrittr)
 library(oligo)
 library(pd.mogene.1.0.st.v1)
 library(mogene10sttranscriptcluster.db)
+library(dplyr)
 
 GEO <- "GSE52333"
+chip <- "mogene10st"
+org <- "mm"
+annot <- "ensg"
+
 gse <- getGEO(GEO)[[1]]
 
 base_dir <- paste(base::getwd(), "data-raw", sep="/")
@@ -25,6 +29,30 @@ if (!all(file.exists(raw_data_file))) {
                             fetch_files = TRUE)
 }
 
+platform_design <- paste0("pd.", chip, ".", org, ".", annot)
+
+if (!require(platform_design, character.only = TRUE, quietly = TRUE,
+             attach.required = FALSE, warn.conflicts = FALSE)) {
+  link_to_cdf <- paste0("http://mbni.org/customcdf/",
+                        version, "/", annot, ".download/",
+                        platform_design, "_", version, ".tar.gz")
+
+  utils::install.packages(link_to_cdf,
+                          repos = NULL,
+                          type = "source",
+                          quiet = TRUE,
+                          warn.conflicts = FALSE,
+                          verbose = FALSE)
+}
+
+
+if (require(platform_design, character.only = TRUE, quietly = TRUE,
+            attach.required = FALSE, warn.conflicts = FALSE)) {
+  return(platform_design)
+} else {
+  stop("Installation failed.")
+}
+
 cel_files <- as.character(gse[["supplementary_file"]])
 
 err_file_name <- cel_files[grepl("GSM1263252", cel_files)]
@@ -42,32 +70,23 @@ if (!all(file.exists(cel_files_full))) {
 }
 
 
-raw_data <- oligo::read.celfiles(cel_files_full)
+raw_data <- oligo::read.celfiles(cel_files_full,
+                                 pkgname = platform_design)
 
 eset <- oligo::rma(raw_data)
 
 expr <- Biobase::exprs(eset)
 
-exp_design <- Biobase::pData(gse)
+exp_design <- Biobase::pData(gse) %>%
+              group_by(`diet:ch1`, `harvest timepoint:ch1`) %>%
+              mutate(rep=row_number())
 
 colnames(expr) <- exp_design %$%
-                      paste(`diet:ch1`, `harvest timepoint:ch1`, sep="_") %>%
+                      paste(`diet:ch1`, `harvest timepoint:ch1`, rep, sep="_") %>%
                       gsub("normal chow", "NC", .) %>% gsub("high fat diet", "HFD", .)
 
-collapser <- function(x){
-  x %>% unique %>% sort %>% paste(collapse = "|")
-}
+rownames(expr) <- gsub("_at", "", rownames(expr))
 
-annots <- AnnotationDbi::select(
-  x       = mogene10sttranscriptcluster.db,
-  keys    = rownames(expr),
-  columns = c("PROBEID", "ENSEMBL", "ENTREZID", "SYMBOL"),
-  keytype = "PROBEID"
-) %>%
-  group_by(PROBEID) %>%
-  summarize(across(.fns = collapser)) %>%
-  ungroup
-
-
+high_fat_diet_ma <- expr
 
 usethis::use_data(high_fat_diet_ma, overwrite = TRUE)
