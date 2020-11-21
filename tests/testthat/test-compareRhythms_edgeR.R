@@ -8,19 +8,19 @@ test_that("edger analysis works for default params", {
   results <- compareRhythms(countsFromAbundance, exp_design, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic"))
   results <- compareRhythms(counts, exp_design, lengths = lengths, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic"))
   results <- compareRhythms(countsFromAbundance, exp_design_batch, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic"))
   results <- compareRhythms(counts, exp_design_batch, lengths = lengths, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic"))
 })
 
 test_that("edger analysis works for different input params", {
@@ -34,7 +34,7 @@ test_that("edger analysis works for different input params", {
   results <- compareRhythms(counts, exp_design, lengths = lengths, just_classify = FALSE, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category", "P66KO_amp",
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "P66KO_amp",
                  "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR"))
 })
@@ -52,19 +52,19 @@ test_that("edger analysis works for different input params with batch", {
   results <- compareRhythms(counts, exp_design_batch, lengths = lengths, just_classify = FALSE, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category", "P66KO_amp",
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "P66KO_amp",
                  "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR"))
   results <- compareRhythms(counts, exp_design_batch, lengths = lengths, just_classify = FALSE, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category",
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic",
                  "P66KO_amp", "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR"))
   results <- compareRhythms(countsFromAbundance, exp_design_batch, just_classify = FALSE, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category",
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic",
                  "P66KO_amp", "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR"))
 })

@@ -7,7 +7,7 @@ test_that("DODR analysis works for default params", {
   results <- compareRhythms(expr, exp_design, method = "dodr")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category"))
+               c("id", "category", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic"))
 })
 
 test_that("DODR analysis works for different input params", {
@@ -20,7 +20,7 @@ test_that("DODR analysis works for different input params", {
   results <- compareRhythms(expr, exp_design, just_classify = FALSE, method = "dodr")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category", "CC_amp",
+               c("id", "category", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "CC_amp",
                  "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC", "adj_p_val_KD", "adj_p_val_dodr"))
 })
 

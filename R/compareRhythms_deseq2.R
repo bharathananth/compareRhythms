@@ -41,7 +41,8 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
 
   group_id <- base::levels(exp_design$group)
 
-  rhythmic_in_either <- DESeq2::results(dds, independentFiltering = FALSE)
+  rhythmic_in_either <- DESeq2::results(dds, independentFiltering = FALSE,
+                                        cooksCutoff = FALSE)
 
   results <- compute_model_params(stats::coef(dds), group_id, type = "coef")
 
@@ -81,9 +82,10 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
                                 quiet = TRUE)
 
 
-  diff_rhy_results <- DESeq2::results(diff_rhy_fit, independentFiltering = FALSE)
+  diff_rhy_results <- DESeq2::results(diff_rhy_fit, independentFiltering = FALSE,
+                                      cooksCutoff = FALSE)
 
-  diff_rhy_results <- diff_rhy_results[rownames(diff_rhy_results) %in% results$id, ]
+  diff_rhy_results <- diff_rhy_results[results$id, ]
 
   results$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$pvalue,
                                           method = "BH")
@@ -98,8 +100,8 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
                                    results$rhythmic_in_B,
                                    results$diff_rhythmic)
 
-  main_cols <- c("id", "rhythmic_in_A", "rhythmic_in_B",
-                 "diff_rhythmic", "category")
+  main_cols <- c("id", "category", "rhythmic_in_A", "rhythmic_in_B",
+                 "diff_rhythmic")
 
   results <- results[, c(main_cols,
                          base::setdiff(colnames(results), main_cols))]

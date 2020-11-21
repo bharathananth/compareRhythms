@@ -9,11 +9,11 @@ test_that("limma-voom analysis works for default params", {
   results <- compareRhythms(countsFromAbundance, exp_design, method = "voom")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic"))
   results <- compareRhythms(countsFromAbundance, exp_design_batch, method = "voom")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category"))
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic"))
 })
 
 test_that("limma-voom analysis works for different input params", {
@@ -27,8 +27,8 @@ test_that("limma-voom analysis works for different input params", {
   results <- compareRhythms(countsFromAbundance, exp_design, just_classify = FALSE, method = "voom")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category", "P66KO_amp",
-                 "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic",
+                 "P66KO_amp", "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR"))
 })
 
@@ -43,7 +43,7 @@ test_that("limma-voom analysis works for different input params with batch", {
   results <- compareRhythms(countsFromAbundance, exp_design_batch, just_classify = FALSE, method = "voom")
   expect_s3_class(results, "data.frame")
   expect_named(results,
-               c("id", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category", "P66KO_amp",
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "P66KO_amp",
                  "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR"))
 })
