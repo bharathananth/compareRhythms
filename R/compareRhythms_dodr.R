@@ -101,12 +101,12 @@ compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
                         rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
                         diff_rhythmic = dodr_results$adj_p_val < compare_fdr,
                         stringsAsFactors = FALSE)
-  rownames(results) <- NULL
 
   results$category <- base::mapply(categorize,
                                 results$rhythmic_in_A,
                                 results$rhythmic_in_B,
                                 results$diff_rhythmic)
+  results <- results[, c(1, 5, 2, 3, 4)]
 
   if (!just_classify) {
     expand_results <- data.frame(
@@ -121,6 +121,7 @@ compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
     results <- base::cbind(results, expand_results)
   }
 
+  rownames(results) <- NULL
   colnames(results) <- gsub("A", group_id[1], colnames(results))
   colnames(results) <- gsub("B", group_id[2], colnames(results))
 
