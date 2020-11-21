@@ -1,4 +1,9 @@
 #' Run differential rhythmicity analysis
+#'
+#' The differential rhythmicity analysis is run with a call to this function. To
+#' execute this function, the three necessary ingredients are the timeseries
+#' data, the experimental design and parameters to choose and tune the method.
+#'
 #' @param data A matrix of log2 expression values (if microarray), expression
 #'   counts (RNA-seq) or normalized data (see Details).
 #' @param exp_design A data.frame of the experimental design with at least two
@@ -6,11 +11,10 @@
 #' @param lengths A data.frame of average transcript lengths. Only used with
 #'   methods "deseq" and "edgeR".
 #' @param method The method of analysis. It should be one of "mod_sel" for model
-#'   selection, "dodr" for analysis using \code{\link[DODR]{dodr}}, "limma" for
+#'   selection, "dodr" for analysis using [DODR::dodr], "limma" for
 #'   linear-modeling approach based on \pkg{limma}, "voom" for linear-modeling
-#'   approah for RNA-Seq using \code{\link[limma]{voom}}, "deseq2" for RNA-seq
-#'   analysis using \pkg{DESeq2}, and "edger" for RNA-seq analysis using
-#'   \pkg{edgeR}.
+#'   approach for RNA-Seq using [limma::voom], "deseq2" for RNA-seq analysis
+#'   using \pkg{DESeq2}, and "edger" for RNA-seq analysis using \pkg{edgeR}.
 #' @param period The period of rhythm being tested (default = 24)
 #' @param rhythm_fdr The false discovery cutoff for finding rhythmic time series
 #'   (default = 0.05)
@@ -28,9 +32,15 @@
 #'   (TRUE) or if the amplitude and phases of fits should also be returned
 #'   (FALSE)
 #' @param robust Boolean to turn on robust computation of statistics in
-#'   different method (default = TRUE).
+#'   different methods (default = TRUE).
 #' @param outliers Boolean specifying if weights must be computed for each
 #'   sample to account for outliers. Only used by method = "voom".
+#'
+#' @return A *data.frame* with the names of the differentially rhythmic
+#'   features, the category it is classified under and optionally the rhythm
+#'   parameters of the features in each group. The differential rhythmicity
+#'   categories are **gain** of, **loss** of, **change** of, or **same** rhythms
+#'   (with respect to the reference/control group).
 #'
 #' @export
 compareRhythms <- function(data, exp_design, lengths=NULL,
