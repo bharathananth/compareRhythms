@@ -1,19 +1,20 @@
 Package: compareRhythms
 Type: Package
-Title: Analyze Differential Rhythmicity
+Title: Approaches to identify Differential Rhythmicity
 Version: 0.1.0
 Author: Bharath Ananthasubramaniam
 Maintainer: Bharath Ananthasubramaniam <bharath.ananth@charite.de>
 Description: This package identifies features that have altered rhythms 
-    between two conditions, i.e, are differentially rhythmic. The multiple 
-    pipelines are implemented as a single function with options to customize the
-    analysis for microarray ('limma') and RNA-seq ('limma-voom', 'DESeq2', 
-    'edgeR'). The 'DODR' and model-selection approaches permit application to 
-    other non-transcriptomic datasets.
+    between two conditions, i.e., are differentially rhythmic. Hypothesis 
+    testing-based and model selection workflows classify differentially 
+    rhythmic features into four categories. The workflows are implemented as a 
+    single function and can be customized for microarray, RNA-seq or generic 
+    data.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
+Roxygen: list(markdown = TRUE)
 Imports:
     rain (>= 1.16.0),
     DODR (>= 0.99.2),
@@ -24,4 +25,11 @@ Imports:
     SummarizedExperiment (>= 1.16.1)
 Suggests: 
     testthat (>= 2.1.0),
-    statmod (>= 1.2.2)
+    statmod (>= 1.2.2),
+    knitr,
+    rmarkdown,
+    tidyverse
+VignetteBuilder: knitr
+Depends: 
+    R (>= 2.10)
+Language: en-US
