@@ -1,0 +1,309 @@
+---
+title: "Analyzing rhythmic data with compareRhythms"
+author: Bharath Ananthasubramaniam
+date: 23 Oct 2020
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analyzing rhythmic data with compareRhythms}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: DiffRhythm.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE
+)
+```
+
+This package is designed to find features with altered circadian rhythm parameters (*amplitude* and *phase*) between the control and experimental groups. In this vignette, we will walk through two examples that show the basic application of the `compareRhythms` package to microarray and RNA-seq data. Nevertheless, any rhythmic data can be analyzed using this package.
+
+### Usage summary
+The analysis is run using a single function `compareRhythms()`. To execute this function, the three necessary ingredients are the timeseries data, the experimental design and parameters to choose and tune the method. The output of the function is a *data.frame* with the IDs of the differentially rhythmic features, the category they are classified under and optionally the rhythm parameters of the features in the two groups. The differential rhythmicity categories are **gain** of, **loss** of, **change** of, or  **same** rhythms (with respect to the reference/control group). 
+
+
+### Time series data and experimental design
+Only two inputs are mandatory to run the workflows in this package. 
+
+1. A single (numeric) *matrix* combining both timeseries datasets. The rows of this matrix are the features and the columns are the different samples. The *rownames* of this data matrix provide the `id` list for the features.
+
+2. A *data.frame* specifying the experimental design (details regarding each sample) in order to interpret the data matrix. 
+    i) There must be one row in this data.frame describing each sample (column) in the data matrix. 
+    ii) This data.frame must contain a numeric column named `time` specifying the time associated with the sample and a *factor* column named `group` specifying whether a sample belongs to the control or the experimental group. This `group` variable must have only two levels with one chosen as the reference with respect to which the results are presented. 
+    iii) Optionally, a column named `batch` can be used to specify a categorical (factor) covariate representing an independent or confounding variable (Note: covariates cannot be included in all methods. More on that below). Currently, there is no capability to include continuous covariates in the analysis.
+
+### Choice of method
+The package currently offers a choice of 6 different methods. We describe below the tuning parameters available for each method.
+
+There are three parameters that are common to all methods.
+
+- `period` : This positive number is the period of the rhythms, whose amplitude and phase must be compared between the two timeseries datasets. Defaults to 24. 
+
+- `amp_cutoff` : Only features with a peak-to-trough amplitude greater than this positive number in at least one group are included in the differential rhythmicity results. 
+
+- `just_classify` : This boolean flag specifies if the amplitude and phase estimates of each differential rhythmic feature in the two groups (`just_classify = FALSE`) must be returned in addition to the list of `id`s and their classification into the differential rhythmicity categories.
+
+The different approaches can be divided into model selection and the rest that are all implementations of hypothesis testing:
+
+1. **Model selection** (`method = "mod_sel"` (default))
+: The different categories of differentially rhythmic features are represented by linear regression models that are fit to the data [@atger_circadian_2015]. The best model/category is selected by an information theoretic `criterion`. The quality of fit of the best category to the data is fine tuned using `schwarz_wt_cutoff`.
+    + `criterion` is used to select the desired information criterion to pick the best model/category. "bic" (default) selects Bayesian Information Criterion (BIC) and "aic" selects Akaike Information Criterion (AIC). BIC penalizes model size more than AIC and hence favors smaller models.
+    + `schwarz_wt_cutoff` (default = 0.6) is a probability threshold for the weight of the best model/category. The weight of the best model/category (called Schwarz weight with BIC and Akaike weight with AIC) is the probability that the chosen category is the best category given the data and the other models/categories. Higher this number (between 0 and 1), more certain is the classification. But models that do not reach this threshold are left unclassified.
+    
+    <u>Use cases</u>: This method can be used on any normalized data. Technically, the assumption that the noise/errors is/are normal at each sample and independent needs to be acceptable.
+    
+2. **DODR** (`method = "dodr"`)
+: Rhythmic features in either group are first identified using [rain](https://doi.org/doi:10.18129/B9.bioc.rain) followed by filtering by rhythm amplitude (`amp_cutoff`). The resulting subset of features are processed using [DODR](https://cran.r-project.org/package=DODR) [@thaben_differential_2016], an R package to find the differentially rhythmic features. The features are classified after the fact into the 4 categories listed above.
+    + `rhythm_fdr` is the threshold for pre-filtering rhythmic features in either group based on the multiple testing corrected p-value from rain.
+    + `compare_fdr` is the threshold for selecting differentially rhythmic features using the multiple testing corrected p-values from DODR.
+    
+    <u>Use cases</u>: This method can be used on any normalized data.
+
+3. **limma** (`method = "limma"`)
+: This is an implementation of **DODR** using the linear modeling approach for microarrays in [limma](https://doi.org/doi:10.18129/B9.bioc.limma) [@ritchie_limma_2015]. The analysis follows the same steps with the difference that the filtering for rhythmic features in either group can be accomplished in a single test and differential rhythmicity test is also achieved in the same framework by comparing rhythm parameters (amplitude and phase).
+    + `rhythm_fdr` is the threshold for pre-filtering rhythmic features in either group based on the multiple testing corrected p-value.
+    + `compare_fdr` is the threshold for selecting differentially rhythmic features using the multiple testing corrected p-values
+    + `robust` is a boolean to make the noise estimates for individual features in limma robust against outliers (see `eBayes` in [limma](https://doi.org/doi:10.18129/B9.bioc.limma) for details).
+    
+    <u>Use cases</u>: This method is to be used only on log normalized microarray data (see limma for details).
+
+4. **voom** (`method = "voom"`)
+: This is a variation of **limma** to also process RNA-seq data with the same pipeline. Count data are preprocessed using `voom` and then analyzed using the **limma** method above.
+    + `rhythm_fdr` (see **limma**)
+    + `compare_fdr` (see **limma**)
+    + `robust` (see **limma**)
+    + `outliers` is a boolean to downweight outlier *samples* in the analysis. (see `voomWithQualityWeights` in [limma](https://doi.org/doi:10.18129/B9.bioc.limma) for details)
+    
+    <u>Use cases</u>: This method is to be used with count data from an RNA-seq experiment. Count data from aligment (STAR, TopHat2) followed by quantification (htseq-count, summarizeOverlaps, featureCounts) can be directly used. If [tximport](https://doi.org/doi:10.18129/B9.bioc.tximport) is used to import data, then use counts after setting `countsFromAbundance = "lengthScaledTPM" or "scaledTPM"` in the `tximport()` call. 
+
+5. **DESeq2** (`method = "deseq2"`)
+: This is the **limma** workflow adapted to process RNA-seq data according to [DESeq2](https://doi.org/10.18129/B9.bioc.DESeq2) [@love_moderated_2014].
+    + `rhythm_fdr` (see **limma**)
+    + `compare_fdr` (see **limma**)
+    + `length` is an optional *matrix* (with the same size as data) containing the average transcript length of each gene in each sample.
+    
+    <u>Use cases</u>: This method is to be used with count data from an RNA-seq experiment. Count data from aligment (STAR, TopHat2) followed by quantification (htseq-count, summarizeOverlaps, featureCounts) can be directly used. If [tximport](https://doi.org/doi:10.18129/B9.bioc.tximport) is used to import data, then use `counts` and `length` obtained from the `tximport()` call with `countsFromAbundance = "no"`.
+
+6. **edgeR** (`method = "edger"`)
+: This is the **limma** workflow adapted to process RNA-seq data according to [edgeR](https://doi.org/10.18129/B9.bioc.edgeR) [@robinson_edger_2010].
+    + `rhythm_fdr` (see **limma**)
+    + `compare_fdr` (see **limma**)
+    + `length` (see **DESeq2**)
+    
+    <u>Use cases</u>: This method is to be used with count data from an RNA-seq experiment. Count data from aligment (STAR, TopHat2) followed by quantification (htseq-count, summarizeOverlaps, featureCounts) can be directly used. If [tximport](https://doi.org/doi:10.18129/B9.bioc.tximport) is used to import data, then use `counts` and `length` obtained from the `tximport()` call with `countsFromAbundance = "no"`.
+
+### Example 1: Microarray data
+ We analyze first the microarray data on the changes in circadian liver transcriptome under high fat diet (HFD) with respect to normal chow (NC) [@eckel-mahan_reprogramming_2013]. This data is provided with this package as a 23060x36 matrix called `high_fat_diet_ma`. Liver transcripts were quantified every 4h for 24h (6 samples) and the 2 different conditions with 3 biological replicates each (36=6x2x3). [maEndToEnd](https://bioconductor.org/packages/devel/workflows/vignettes/maEndToEnd/inst/doc/MA-Workflow.html) describes how to perform quality control and normalization for microarrays.
+```{r setup, include=TRUE, message=FALSE, eval=TRUE}
+library(compareRhythms)
+library(tidyverse)
+```
+
+```{r view_ma}
+head(high_fat_diet_ma[,1:6])
+colnames(high_fat_diet_ma)
+```
+We will first construct the data.frame of the experimental design. In this simple example, the required experimental design information is encoded in the column names, which we extract.
+```{r exp-design}
+exp_design <- str_split(colnames(high_fat_diet_ma), "_", simplify = TRUE)     # split the names by _
+exp_design <- as.data.frame(exp_design)    # convert from matrix to data.frame
+colnames(exp_design) <- c("group", "time", "rep")    # name the columns
+exp_design$time <- as.numeric(sub("ZT", "", exp_design$time)) # remove ZT prefix and make numeric
+head(exp_design)
+str(exp_design)   # view data type of each column
+```
+So `exp_design` has the two required columns *group* and *time*. Furthermore, *group* is (as required) a factor with only 2 levels and *time* is numeric. We can also check what the reference group is.
+```{r group-levels}
+levels(exp_design$group) # the first level is the reference group
+exp_design$group <- relevel(exp_design$group, "NC") # choose NC as the correct reference group
+```
+
+It is also useful at this point to check whether there are any outlier samples (columns) using PCA.
+```{r PCA-ma, fig.height=2, fig.align="center", fig.width=4, eval=FALSE}
+pca_ma <- prcomp(t(high_fat_diet_ma), scale. = FALSE)
+
+varExp <- round(pca_ma$sdev^2/sum(pca_ma$sdev^2)*100, 1)
+
+df <- data.frame(PC1 = pca_ma$x[,1], PC2 = pca_ma$x[,2],
+                 diet = exp_design$group,
+                 time = exp_design$time)
+
+ggplot(df, aes(PC1, PC2)) + geom_text(aes(label=time, color=diet), size=3) +
+  theme_bw(base_size=10) +   scale_color_brewer(name = "Diet", palette="Dark2") + 
+  theme(aspect.ratio=1) + xlab(paste0("PC1, VarExp: ", varExp[1], "%")) +
+  ylab(paste0("PC2, VarExp: ", varExp[2], "%"))
+
+```
+The first principal component (PC) seems to capture the time variation and the second PC captures differences in diet. Therefore, the main variations we are interested in are captured in top 2 PCs. There appear to be no obvious outliers. 
+
+All ``r nrow(high_fat_diet_ma)`` genes (features) in the mouse transcriptome (according to Ensembl) are included in the data. We want to keep only the strongly enough expressed genes for differential rhythmicity analysis. 
+```{r histogram-expression, fig.width=6, fig.height=2, fig.align="center"}
+grp_ids <- levels(exp_design$group)   # extract the names of the two groups
+mean_g1 <- rowMeans(high_fat_diet_ma[, exp_design$group == grp_ids[1]]) # mean expression of group 1
+mean_g2 <- rowMeans(high_fat_diet_ma[, exp_design$group == grp_ids[2]]) # mean expression of group 2
+
+df <- bind_rows(data.frame(mean=mean_g1, group=grp_ids[1]),
+                data.frame(mean=mean_g2, group=grp_ids[2]))    # data.frame for plotting
+
+ggplot(df) +
+  stat_bin(aes(x=mean, fill=group), bins = 100) + facet_wrap(~group) + theme_bw(base_size=10) +
+  geom_vline(xintercept = 5.5, color="grey50") + theme(strip.background = element_blank()) +
+  xlab("mean expression") + guides(fill="none") + ylab("number of genes") +
+  scale_fill_brewer(palette="Dark2")
+
+keep <- (mean_g1 > 5.5) | (mean_g2 > 5.5)
+table(keep)    # summary of how many genes will be kept after filtering
+expr_filtered <- high_fat_diet_ma[keep, ]
+```
+
+Before we run `compareRhythms()` on this data let us check that 
+*  the number of columns in `expr_filtered` match number of rows of `exp_design`.
+*  `expr_filtered` is a matrix and `exp_design` is a data.frame
+```{r input-check}
+nrow(exp_design) == ncol(expr_filtered)
+class(exp_design)
+class(expr_filtered)
+```
+
+We will analyze this microarray data using *model selection* first. Log2 normalized data such as `high_fat_diet_ma` can be directly used.
+```{r ma-mod-sel-1}
+results <- compareRhythms(expr_filtered, exp_design = exp_design, 
+                          period = 24, method = "mod_sel") # run with default parameters for schwarz_wt_cutoff and criterion
+head(results)
+table(results$category)    # number of genes in the different categories
+```
+
+For model selection alone, the number of arrhythmic features is returned, since some features that have weights less than `schwarz_wt_cutoff` are unclassified. Here, ``r nrow(expr_filtered)`` - ``r nrow(results)``= ``r nrow(expr_filtered) - nrow(results)`` genes are left unclassified.
+
+If the peak-to-trough amplitude and peak phase (acrophase) estimates are desired,
+```{r ma-mod-sel-2}
+results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24, 
+                          method = "mod_sel", just_classify = FALSE) # run with default parameters for schwarz_wt_cutoff and criterion
+head(results)
+```
+The amplitude is the units of the data (for this method) and phase is in radians. To get the phase in h, multiply the phase estimates by `period/(2*pi)`.
+
+Next, we analyze the data using the *DODR* method. We only show entire results (with `just_classify = FALSE`) for simplicity.
+```{r ma-dodr}
+results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24, 
+                          method = "dodr", just_classify = FALSE) # run with default parameters
+head(results)
+table(results$category)   # number of genes in the different categories
+```
+In addition to the rhythm parameters (amplitude and phase), there are boolean columns stating if the feature is rhythmic in NC and HFD and whether the feature is also differentially rhythmic. These are derived using tuning parameters `rhythm_fdr` and `compare_fdr` and the adjusted p-values for the two rhythmicity tests using RAIN and differential rhythmicity test from DODR.
+
+Recall that the previous two approaches are not specific to microarray data. Finally, we analyze this data using the linear modeling framework of limma designed for microarray analysis.
+```{r ma-limma-1}
+results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24, 
+                          method = "limma", just_classify = FALSE) # run with default parameters
+head(results)
+table(results$category)   # number of genes in the different categories
+```
+The returned columns are similar to that from *DODR* (as they are both based on the same hypothesis testing approach). The only difference is that the test for rhythmicity in either group can performed using a single test, whose adjusted p-value is returned. The differential rhythmicity test compares circadian parameters (as coefficients of a harmonic regression) between the two groups. The boolean columns are constructed (as before) using these p-values. Moreover, due to the similarity of approaches the results of the analyses are very similar.
+
+We can also vary the parameters `amp_cutoff`, `compare_fdr` and `rhythm_fdr` as necessary.
+```{r ma-limma-2}
+results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24, 
+                          method = "limma", just_classify = TRUE, amp_cutoff = 0.1)
+table(results$category)
+results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24, 
+                          method = "limma", just_classify = TRUE, rhythm_fdr = 0.1)
+table(results$category)
+results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24, 
+                          method = "limma", just_classify = TRUE, compare_fdr = 0.1)
+table(results$category)
+```
+
+### Example 2: RNA-seq data
+We next analyze an RNA-sequencing dataset comparing the effect of a high fat diet on the mouse liver transcriptome with the same experimental design [@quagliarini_cistromic_2019]. This data too is provided with this package as a 37310x36 matrix called `high_fat_diet_rnaseq`. We follow a similar sequence of steps as for microarrays in Example 1.
+```{r setup-rnaseq, include=TRUE, message=FALSE}
+library(compareRhythms)
+library(edgeR)
+library(tidyverse)
+library(DESeq2)
+```
+
+```{r view-rnaseq}
+head(high_fat_diet_rnaseq[, 1:6])
+
+colnames(high_fat_diet_rnaseq)
+```
+We will next construct the data.frame of the experimental design from the data column names. As before, we fix "NC" to be the reference level for *factor* group column.
+```{r exp_design-rnaseq}
+exp_design <- str_split(colnames(high_fat_diet_rnaseq), "_", simplify = TRUE)     # split the names by _
+exp_design <- as.data.frame(exp_design)    # convert from matrix to data.frame
+colnames(exp_design) <- c("group", "time", "rep")    # name the columns
+exp_design$time <- as.numeric(sub("ZT", "", exp_design$time)) # remove ZT prefix and make numeric
+head(exp_design)
+str(exp_design)   # view data type of each column
+levels(exp_design$group) # the first level is the reference group
+exp_design$group <- relevel(exp_design$group, "NC") # choose NC as the correct reference group
+```
+
+Next, the data matrix must be filtered down to include only sufficiently *expressed* genes. We will used a convenient function `filterByExpr()` in [edgeR](https://doi.org/10.18129/B9.bioc.edgeR) to select genes that have sufficiently expression (20 counts at the median library size in 70% of the samples in each group).
+```{r filtering}
+keep <- filterByExpr(high_fat_diet_rnaseq, group = exp_design$group, min.count=20)
+table(keep)   # view the number of genes retained.
+counts <- high_fat_diet_rnaseq[keep, ]
+```
+
+At this point, we would like to ensure that there are no outlier samples. We are using the utilities provided by edgeR but you can use the steps in the [DESeq2 vignette]() instead.
+```{r MDS, fig.height=2, fig.align="center", fig.width=4}
+y_explore <- DGEList(counts=counts, group = exp_design$group)
+y_explore <- calcNormFactors(y_explore)
+mdsscale <- plotMDS(y_explore, plot = FALSE)
+
+df <- data.frame(X = mdsscale$x, Y = mdsscale$y,
+                 diet = exp_design$group,
+                 time = exp_design$time)
+
+ggplot(df, aes(X, Y)) + geom_text(aes(label=time, color=diet), size=3) +
+  theme_bw(base_size=10) +   scale_color_brewer(name = "Diet", palette="Dark2") + 
+  theme(aspect.ratio=1) + xlab("Leading logFC dim 1") + ylab("Leading logFC dim 2")
+```
+
+The samples appear to separate into the two diet groups. A ZT12 sample under NC is likely an outlier.
+```{r remove-outlier}
+ind <- which.max(df$X)    # find sample with the largest X deviation (our outlier)
+counts_no_outlier <- counts[, -ind]   # remove that sample
+dim(counts_no_outlier)
+nrow(exp_design) == ncol(counts_no_outlier)   #input-check
+```
+The experimental design now does not match the count matrix after we removed the outlier. We have to also remove this sample from the exp_design.
+```{r exp_design-outlier}
+exp_design_no_outlier <- exp_design[-ind, ]
+nrow(exp_design_no_outlier) == ncol(counts_no_outlier)   #input-check
+```
+
+
+Now, the data is ready for `compareRhythms`. We can use the *voom*, *DESeq2* or *edgeR*.
+```{r run-rnaseq}
+results1 <- compareRhythms(counts_no_outlier, exp_design_no_outlier, method = "voom")  # with default parameters
+table(results1$category)
+results2 <- compareRhythms(counts_no_outlier, exp_design_no_outlier, method = "deseq2")  # with default parameters
+table(results2$category)
+results3 <- compareRhythms(counts_no_outlier, exp_design_no_outlier, method = "edger")  # with default parameters
+table(results3$category)
+```
+
+The *voom* analysis can take care of outlier samples (without removing the outlier samples) by setting `outliers=TRUE`. This is generally more powerful than removing the outlier sample.
+```{r voom-outlier}
+results4 <- compareRhythms(counts, exp_design, method = "voom", outliers = TRUE)  # with default parameters
+table(results4$category)
+```
+Of course, these hypothesis-testing based methods can be fine tuned by changing `compare_fdr`, `rhythm_fdr` and `amp_cutoff`.
+
+It is also possible to process this data using model selection after the data are normalized. We use the tools in *edgeR* to compute the normalized log counts per million expression of the data and then apply model selection as in Example 1.
+```{r mod-sel-rnaseq}
+y <- DGEList(counts_no_outlier)
+y <- calcNormFactors(y)
+results5 <- compareRhythms(cpm(y, log = TRUE), exp_design_no_outlier, method = "mod_sel")  # with default parameters
+table(results5$category)
+```
+
+
+
+### References
+
