@@ -1,0 +1,54 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+```{r library, echo=FALSE}
+library(badger)
+library(hexSticker)
+```
+
+# compareRhythms
+
+<!-- badges: start -->
+```{r, echo = FALSE, results='asis'}
+cat(
+	badge_github_version("compareRhythms", "green"),
+	badge_license()
+)
+s <- sticker(~plot(cars, cex=.5, cex.axis=.5, mgp=c(0,.3,0), xlab="", ylab=""),
+          package="hexSticker", p_size=20, s_x=.8, s_y=.6, s_width=1.4, s_height=1.2,
+          filename="inst/baseplot.png")
+```
+<!-- badges: end -->
+
+
+The goal of *compareRhythms* is to find features with altered circadian rhythm parameters (*amplitude* and *phase*) between the control and experimental groups.
+
+## Installation
+
+You can install the current version of compareRhythms from GitHub with:
+
+``` r
+install.packages("devtools")    # if it is not already installed
+devtools::install_github("bharathananth/compareRhythms")
+```
+
+## Usage summary
+The analysis is run using a single function `compareRhythms()`. To execute this function, the three necessary ingredients are the timeseries data, the experimental design and parameters to choose and tune the method. The output of the function is a *data.frame* with the IDs of the differentially rhythmic features, the category it is classified under and optionally the rhythm parameters of the feature in the two groups. The differential rhythmicity categories are **gain** of, **loss** of, **change** of, or  **same** rhythms (with respect to the reference/control group). 
+
+For complete examples, please refer to the vignette titled **User Guide** by running
+```{r userguide, eval=FALSE}
+library(compareRhythms)
+vignette("UserGuide", package="compareRhythms")
+```
