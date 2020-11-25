@@ -6,10 +6,10 @@ Author: Bharath Ananthasubramaniam
 Maintainer: Bharath Ananthasubramaniam <bharath.ananth@charite.de>
 Description: This package identifies features that have altered rhythms 
     between two conditions, i.e., are differentially rhythmic. Hypothesis 
-    testing-based and model selection workflows classify differentially 
-    rhythmic features into four categories. The workflows are implemented as a 
-    single function and can be customized for microarray, RNA-seq or generic 
-    data.
+    testing and model selection pipelines classify differentially 
+    rhythmic features into four categories. The pipelines are implemented as a 
+    single function with customizations for microarray, RNA-seq or generic 
+    (prenormalized) data.
 License: GPL-3
 URL: https://github.com/bharathananth/compareRhythms
 BugReports: https://github.com/bharathananth/compareRhythms/issues
