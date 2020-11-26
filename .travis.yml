@@ -23,6 +23,10 @@ r_check_args: --no-build-vignettes --no-manual --timings
 r_packages:
   - covr
 
+r_github_packages:
+  - cran/npsm
+  - cran/DODR
+
 # we need to install BiocInstaller for testing Bioconductor packages
 bioc_required: true
 
