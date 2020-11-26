@@ -23,6 +23,13 @@ r_check_args: --no-build-vignettes --no-manual --timings
 r_packages:
   - covr
 
+r_binary_packages:
+  - r-cran-tidyverse
+  - r-cran-statmod
+  - r-cran-rmarkdown
+  - r-cran-knitr
+  - r-cran-testthat
+
 r_github_packages:
   - cran/npsm
   - cran/DODR
