@@ -2,7 +2,7 @@ context("compareRhythms_deseq2")
 
 load("test_data_rnaseq.rda")
 
-exp_design_batch <- cbind(exp_design, batch)
+exp_design_batch <- cbind(exp_design, batch, stringsAsFactors=TRUE)
 
 test_that("DESeq2 analysis works for default params", {
   results <- compareRhythms(countsFromAbundance, exp_design, method = "deseq2")

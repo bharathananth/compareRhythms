@@ -3,7 +3,9 @@ context("compareRhythms_limma")
 
 load("test_data_ma.rda")
 
-exp_design_batch <- cbind(exp_design, batch = ifelse(seq(nrow(exp_design)) %% 2, "a", "b"))
+exp_design_batch <- cbind(exp_design,
+                          batch = ifelse(seq(nrow(exp_design)) %% 2, "a", "b"),
+                          stringsAsFactors=TRUE)
 
 test_that("limma analysis works for default params", {
   results <- compareRhythms(expr, exp_design, method = "limma")

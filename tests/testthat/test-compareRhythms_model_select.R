@@ -2,7 +2,9 @@ context("compareRhythms_model_select")
 
 load("test_data_ma.rda")
 
-exp_design_batch <- cbind(exp_design, batch = ifelse(seq(nrow(exp_design)) %% 2, "a", "b"))
+exp_design_batch <- cbind(exp_design,
+                          batch = ifelse(seq(nrow(exp_design)) %% 2, "a", "b"),
+                          stringsAsFactors=TRUE)
 
 test_that("model selection works for default params", {
   results <- compareRhythms(expr, exp_design, method = "mod_sel")
