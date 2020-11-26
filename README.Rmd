@@ -26,10 +26,8 @@ cat(
 	badge_github_version("compareRhythms", "green"),
 	badge_license()
 )
-s <- sticker(~plot(cars, cex=.5, cex.axis=.5, mgp=c(0,.3,0), xlab="", ylab=""),
-          package="hexSticker", p_size=20, s_x=.8, s_y=.6, s_width=1.4, s_height=1.2,
-          filename="inst/baseplot.png")
 ```
+[![Travis build status](https://travis-ci.org/bharathananth/compareRhythms.svg?branch=master)](https://travis-ci.org/bharathananth/compareRhythms)
 <!-- badges: end -->
 
 

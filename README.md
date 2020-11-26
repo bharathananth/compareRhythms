@@ -5,9 +5,11 @@
 
 <!-- badges: start -->
 
-[![](https://img.shields.io/badge/devel%20version-0.0.0.9000-green.svg)](https://github.com/compareRhythms)
+[![](https://img.shields.io/badge/devel%20version-0.99.0-green.svg)](https://github.com/compareRhythms)
 [![License:
 GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-project.org/web/licenses/GPL-3)
+[![Travis build
+status](https://travis-ci.org/bharathananth/compareRhythms.svg?branch=master)](https://travis-ci.org/bharathananth/compareRhythms)
 <!-- badges: end -->
 
 The goal of *compareRhythms* is to find features with altered circadian
