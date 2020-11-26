@@ -10,6 +10,8 @@
 GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-project.org/web/licenses/GPL-3)
 [![Travis build
 status](https://travis-ci.org/bharathananth/compareRhythms.svg?branch=master)](https://travis-ci.org/bharathananth/compareRhythms)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
 The goal of *compareRhythms* is to find features with altered circadian
@@ -44,3 +46,8 @@ Guide** by running
 library(compareRhythms)
 vignette("UserGuide", package="compareRhythms")
 ```
+
+## Getting help
+
+If you encounter a bug, please file a minimal reproducible example on
+[github](https://github.com/bharathananth/compareRhythms/issues).
