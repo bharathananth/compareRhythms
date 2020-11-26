@@ -1,10 +1,19 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: r
-r:
-  - oldrel
-  - release
-  - devel
-  - bioc-devel
-  - bioc-release
 cache: packages
+
+matrix:
+  include:
+  - r:
+      - release
+    script:
+      - R CMD build
+      - R CMD check
+
+  - r:
+      - release
+    os: osx
+    script:
+      - R CMD build
+      - R CMD check
