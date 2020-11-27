@@ -14,6 +14,7 @@ env:
     - _R_CHECK_TIMINGS_="0"
 r:
   - release
+  - oldrel
 
 # do not build vignettes...takes too long and times out on travis
 r_build_args: --no-build-vignettes --no-manual
@@ -40,5 +41,3 @@ bioc_required: true
 # only report coverage for the release version
 after_success:
   - test $TRAVIS_R_VERSION_STRING = 'release' && Rscript -e 'covr::codecov()'
-
-

@@ -25,11 +25,11 @@ library(hexSticker)
 cat(
 	badge_github_version("compareRhythms", "green"),
 	badge_license(),
-	badge_codecov()
+	badge_travis(ref = NULL, is_commercial = FALSE),
+	badge_codecov(),
+	badge_lifecycle()
 )
 ```
-[![Build Status](https://travis-ci.org/bharathananth/compareRhythms.svg?branch=master)](https://travis-ci.org/bharathananth/compareRhythms)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
 
@@ -41,6 +41,8 @@ You can install the current version of compareRhythms from GitHub with:
 
 ``` r
 install.packages("devtools")    # if it is not already installed
+devtools::install_github("cran/npsm")   # Package archived by CRAN
+devtools::install_github("cran/DODR")   # Package archived by CRAN
 devtools::install_github("bharathananth/compareRhythms")
 ```
 
