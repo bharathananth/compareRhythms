@@ -24,11 +24,11 @@ r_packages:
   - covr
 
 r_binary_packages:
-  - r-cran-tidyverse
-  - r-cran-statmod
-  - r-cran-rmarkdown
-  - r-cran-knitr
-  - r-cran-testthat
+  - tidyverse
+  - statmod
+  - rmarkdown
+  - knitr
+  - testthat
 
 r_github_packages:
   - cran/npsm

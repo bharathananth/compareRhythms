@@ -24,7 +24,8 @@ library(hexSticker)
 ```{r, echo = FALSE, results='asis'}
 cat(
 	badge_github_version("compareRhythms", "green"),
-	badge_license()
+	badge_license(),
+	badge_codecov()
 )
 ```
 [![Build Status](https://travis-ci.org/bharathananth/compareRhythms.svg?branch=master)](https://travis-ci.org/bharathananth/compareRhythms)
