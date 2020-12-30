@@ -18,7 +18,7 @@ library(badger)
 library(hexSticker)
 ```
 
-# compareRhythms
+# compareRhythms <img src='man/figures/logo.png' align="right" height="138.5" />
 
 <!-- badges: start -->
 ```{r, echo = FALSE, results='asis'}
