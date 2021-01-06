@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
 
 ```{r library, echo=FALSE}
 library(badger)
-library(hexSticker)
 ```
 
 # compareRhythms <img src='man/figures/logo.png' align="right" height="138.5" />
@@ -27,7 +26,8 @@ cat(
 	badge_license(),
 	badge_travis(ref = NULL, is_commercial = FALSE),
 	badge_codecov(),
-	badge_lifecycle()
+	badge_lifecycle("maturing"),
+	badge_doi("10.1101/2020.12.18.423465", "yellow")
 )
 ```
 <!-- badges: end -->
