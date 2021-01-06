@@ -303,7 +303,10 @@ results5 <- compareRhythms(cpm(y, log = TRUE), exp_design_no_outlier, method = "
 table(results5$category)
 ```
 
-
+### Session Information
+```{r sessionInfo, echo=FALSE}
+print(sessionInfo())
+```
 
 ### References
 
