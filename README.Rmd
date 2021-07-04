@@ -8,6 +8,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  message = FALSE,
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
@@ -37,7 +38,7 @@ The goal of *compareRhythms* is to find features with altered circadian rhythm p
 
 ## Installation
 
-You can install the current version of compareRhythms from GitHub with:
+You can install the current version of *compareRhythms* from GitHub with:
 
 ``` r
 install.packages("devtools")    # if it is not already installed
@@ -57,7 +58,7 @@ vignette("UserGuide", package="compareRhythms")
 
 ## Reference
 
-To cite *compareRhythms* in publications
+To cite *compareRhythms* in publications use:
 
   Venn diagram analysis overestimates the extent of circadian rhythm reprogramming. FEBS Journal, *In Press*. URL
   https://febs.onlinelibrary.wiley.com/doi/10.1111/febs.16095

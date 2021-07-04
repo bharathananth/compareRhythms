@@ -5,8 +5,6 @@
 
 <!-- badges: start -->
 
-    #> ✓ Setting active project to '/Volumes/Research/Working/compareRhythms'
-
 [![](https://img.shields.io/badge/devel%20version-0.99.0-green.svg)](https://github.com/compareRhythms)
 [![License:
 GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-project.org/web/licenses/GPL-3)
@@ -22,7 +20,8 @@ experimental groups.
 
 ## Installation
 
-You can install the current version of compareRhythms from GitHub with:
+You can install the current version of *compareRhythms* from GitHub
+with:
 
 ``` r
 install.packages("devtools")    # if it is not already installed
@@ -53,7 +52,7 @@ vignette("UserGuide", package="compareRhythms")
 
 ## Reference
 
-To cite *compareRhythms* in publications
+To cite *compareRhythms* in publications use:
 
 Venn diagram analysis overestimates the extent of circadian rhythm
 reprogramming. FEBS Journal, *In Press*. URL
