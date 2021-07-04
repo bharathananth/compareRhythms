@@ -108,7 +108,7 @@ colnames(high_fat_diet_ma)
 We will first construct the data.frame of the experimental design. In this simple example, the required experimental design information is encoded in the column names, which we extract.
 ```{r exp-design}
 exp_design <- str_split(colnames(high_fat_diet_ma), "_", simplify = TRUE)     # split the names by _
-exp_design <- as.data.frame(exp_design)    # convert from matrix to data.frame
+exp_design <- as.data.frame(exp_design, stringsAsFactors=TRUE)    # convert from matrix to data.frame
 colnames(exp_design) <- c("group", "time", "rep")    # name the columns
 exp_design$time <- as.numeric(sub("ZT", "", exp_design$time)) # remove ZT prefix and make numeric
 head(exp_design)
@@ -233,7 +233,7 @@ colnames(high_fat_diet_rnaseq)
 We will next construct the data.frame of the experimental design from the data column names. As before, we fix "NC" to be the reference level for *factor* group column.
 ```{r exp_design-rnaseq}
 exp_design <- str_split(colnames(high_fat_diet_rnaseq), "_", simplify = TRUE)     # split the names by _
-exp_design <- as.data.frame(exp_design)    # convert from matrix to data.frame
+exp_design <- as.data.frame(exp_design, stringsAsFactors=TRUE)    # convert from matrix to data.frame
 colnames(exp_design) <- c("group", "time", "rep")    # name the columns
 exp_design$time <- as.numeric(sub("ZT", "", exp_design$time)) # remove ZT prefix and make numeric
 head(exp_design)

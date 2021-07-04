@@ -27,7 +27,7 @@ cat(
 	badge_travis(ref = NULL, is_commercial = FALSE),
 	badge_codecov(),
 	badge_lifecycle("maturing"),
-	badge_doi("10.1101/2020.12.18.423465", "yellow")
+	badge_doi("10.1111/febs.16095", "yellow")
 )
 ```
 <!-- badges: end -->
@@ -54,6 +54,15 @@ For complete examples, please refer to the vignette titled **User Guide** by run
 library(compareRhythms)
 vignette("UserGuide", package="compareRhythms")
 ```
+
+## Reference
+
+To cite *compareRhythms* in publications
+
+  Venn diagram analysis overestimates the extent of circadian rhythm reprogramming. FEBS Journal, *In Press*. URL
+  https://febs.onlinelibrary.wiley.com/doi/10.1111/febs.16095
+  
+  The R code to perform all the analyses in this publication (using *compareRhythms*) can be found in the repository https://github.com/bharathananth/FEBSJ-VDA-overestimates
 
 ## Getting help
 

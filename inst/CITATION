@@ -1,0 +1,20 @@
+citHeader("To cite compareRhythms in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "Venn diagram analysis overestimates the extent of circadian rhythm reprogramming",
+  author   = personList(as.person("Anne Pelikan"),
+                        as.person("Hanspeter Herzel"),
+                        as.person("Achim Kramer"),
+                        as.person("Bharath Ananthasubramaniam")),
+  journal  = "FEBS Journal",
+  year     = "2021",
+  volume   = "",
+  number   = "",
+  pages    = "",
+  doi      = "10.1111/febs.16095",
+  textVersion = paste("Venn diagram analysis overestimates the extent of circadian rhythm reprogramming.",
+  "FEBS Journal, In Press.",
+  "URL https://febs.onlinelibrary.wiley.com/doi/10.1111/febs.16095"
+  )
+)

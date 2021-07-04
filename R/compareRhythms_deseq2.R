@@ -58,7 +58,7 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
   results$adj_p_val_A_or_B <- rhythmic_in_either$padj
 
   results <- results[(results$adj_p_val_A_or_B < rhythm_fdr) &
-                       (results$max_amp > amp_cutoff), ]
+                       (results$max_amp >= amp_cutoff), ]
 
   assertthat::assert_that(assertthat::not_empty(results),
                           msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
