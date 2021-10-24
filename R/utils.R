@@ -9,7 +9,7 @@ compute_circ_params <- function(y, t, period) {
 
   amps <- 2 * sqrt(base::colSums(fit$coefficients[-1, ]^2))
 
-  phases <- atan2(fit$coefficients[3, ], fit$coefficients[2, ])
+  phases <- (atan2(fit$coefficients[3, ], fit$coefficients[2, ]) %% (2*pi))
 
   return(base::cbind(amps = amps, phases = phases))
 
