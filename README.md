@@ -5,12 +5,11 @@
 
 <!-- badges: start -->
 
-[![](https://img.shields.io/badge/devel%20version-0.99.0-green.svg)](https://github.com/compareRhythms)
+[![](https://img.shields.io/badge/devel%20version-0.99.3-green.svg)](https://github.com/compareRhythms)
 [![License:
 GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-project.org/web/licenses/GPL-3)
-[![](https://travis-ci.org/bharathananth/compareRhythms.svg?branch=master)](https://travis-ci.org/bharathananth/compareRhythms)
-[![](https://codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg)](https://codecov.io/gh/bharathananth/compareRhythms)
-[![](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html#maturing)
+[![](https://app.codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bharathananth/compareRhythms)
+[![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![](https://img.shields.io/badge/doi-10.1111/febs.16095-yellow.svg)](https://doi.org/10.1111/febs.16095)
 <!-- badges: end -->
 
@@ -27,7 +26,7 @@ with:
 install.packages("devtools")    # if it is not already installed
 devtools::install_github("cran/npsm")   # Package archived by CRAN
 devtools::install_github("cran/DODR")   # Package archived by CRAN
-devtools::install_github("bharathananth/compareRhythms")
+devtools::install_github("bharathananth/compareRhythms", build_vignettes = TRUE)
 ```
 
 ## Usage summary

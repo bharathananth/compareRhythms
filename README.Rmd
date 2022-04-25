@@ -25,9 +25,8 @@ library(badger)
 cat(
 	badge_github_version("compareRhythms", "green"),
 	badge_license(),
-	badge_travis(ref = NULL, is_commercial = FALSE),
 	badge_codecov(),
-	badge_lifecycle("maturing"),
+	badge_lifecycle("stable"),
 	badge_doi("10.1111/febs.16095", "yellow")
 )
 ```
@@ -44,7 +43,7 @@ You can install the current version of *compareRhythms* from GitHub with:
 install.packages("devtools")    # if it is not already installed
 devtools::install_github("cran/npsm")   # Package archived by CRAN
 devtools::install_github("cran/DODR")   # Package archived by CRAN
-devtools::install_github("bharathananth/compareRhythms")
+devtools::install_github("bharathananth/compareRhythms", build_vignettes = TRUE)
 ```
 
 ## Usage summary
