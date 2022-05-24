@@ -23,6 +23,10 @@ You can install the current version of *compareRhythms* from GitHub
 with:
 
 ``` r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.15")   # This installs bioconductor
+BiocManager::install(c("Summarizedexperiment", "DESeq2", "edgeR", "limma", "rain")) # Packages needed by compareRhythms
 install.packages("devtools")    # if it is not already installed
 devtools::install_github("cran/npsm")   # Package archived by CRAN
 devtools::install_github("cran/DODR")   # Package archived by CRAN
