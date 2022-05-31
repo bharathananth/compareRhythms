@@ -73,9 +73,9 @@ compareRhythms_model_select <- function(data, exp_design, period,
   model_circ_params[["arrhy"]] <- matrix(0, nrow = nrow(data), ncol = 4,
                                        dimnames = dimnames(model_circ_params[["same"]]))
 
-  circ_params <- base::vapply(model_assignment,
-                              function(m) {
-                                model_circ_params[[base::as.character(m)]][names(m), ]
+  circ_params <- base::vapply(names(model_assignment),
+                              function(nm) {
+                                model_circ_params[[base::as.character(model_assignment[nm])]][nm, ]
                               },
                               FUN.VALUE = double(4))
 
