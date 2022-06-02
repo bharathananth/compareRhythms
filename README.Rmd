@@ -47,7 +47,7 @@ BiocManager::install(c("SummarizedExperiment", "DESeq2", "edgeR", "limma", "rain
 install.packages("devtools")    # if it is not already installed
 devtools::install_github("cran/npsm")   # Package archived by CRAN
 devtools::install_github("cran/DODR")   # Package archived by CRAN
-devtools::install_github("bharathananth/compareRhythms", build_vignettes = TRUE)
+devtools::install_github("bharathananth/compareRhythms", build_vignettes = TRUE, dependencies = TRUE)
 ```
 
 ## Usage summary

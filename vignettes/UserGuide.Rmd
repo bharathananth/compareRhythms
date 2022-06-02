@@ -1,7 +1,7 @@
 ---
 title: "Analyzing rhythmic data with compareRhythms"
 author: Bharath Ananthasubramaniam
-date: 23 Oct 2020
+date: 02 Jun 2022
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Analyzing rhythmic data with compareRhythms}
@@ -93,6 +93,13 @@ The different approaches can be divided into model selection and the rest that a
     + `length` (see **DESeq2**)
     
     <u>Use cases</u>: This method is to be used with count data from an RNA-seq experiment. Count data from aligment (STAR, TopHat2) followed by quantification (htseq-count, summarizeOverlaps, featureCounts) can be directly used. If [tximport](https://doi.org/doi:10.18129/B9.bioc.tximport) is used to import data, then use `counts` and `length` obtained from the `tximport()` call with `countsFromAbundance = "no"`.
+    
+7. **Cosinor** (`method = "cosinor"`): This implements the simple classical **cosinor** analysis and includes an option to deal with longitudinal data (which is common in data from human studies).
+    + `rhythm_fdr` (see **limma**)
+    + `compare_fdr` (see **limma**)
+    + `longitudinal` is a boolean to switch between *independent* time samples (FALSE, default) or *repeated-measures* samples (TRUE). 
+
+    <u>Use cases</u>: This method can be used for any normalized dataset of moderate size (few hundreds of features). This analysis assumes that noise in the data is Gaussian and that there are no trends in the measurements across time. The `longitudinal = TRUE` requires the user to provide a factor column `ID` in the `exp_design` with the identity of each experimental unit that is repeatedly measured (Note: this analysis uses mixed-model framework of [lme4](https://cran.r-project.org/package=lme4)).
 
 ### Example 1: Microarray data
  We analyze first the microarray data on the changes in circadian liver transcriptome under high fat diet (HFD) with respect to normal chow (NC) [@eckel-mahan_reprogramming_2013]. This data is provided with this package as a 23060x36 matrix called `high_fat_diet_ma`. Liver transcripts were quantified every 4h for 24h (6 samples) and the 2 different conditions with 3 biological replicates each (36=6x2x3). [maEndToEnd](https://bioconductor.org/packages/devel/workflows/vignettes/maEndToEnd/inst/doc/MA-Workflow.html) describes how to perform quality control and normalization for microarrays.

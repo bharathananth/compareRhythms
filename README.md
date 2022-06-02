@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![](https://img.shields.io/badge/devel%20version-0.99.3-green.svg)](https://github.com/compareRhythms)
+[![](https://img.shields.io/badge/devel%20version-1.0.0-green.svg)](https://github.com/compareRhythms)
 [![License:
 GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-project.org/web/licenses/GPL-3)
 [![](https://app.codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bharathananth/compareRhythms)
@@ -30,7 +30,7 @@ BiocManager::install(c("SummarizedExperiment", "DESeq2", "edgeR", "limma", "rain
 install.packages("devtools")    # if it is not already installed
 devtools::install_github("cran/npsm")   # Package archived by CRAN
 devtools::install_github("cran/DODR")   # Package archived by CRAN
-devtools::install_github("bharathananth/compareRhythms", build_vignettes = TRUE)
+devtools::install_github("bharathananth/compareRhythms", build_vignettes = TRUE, dependencies = TRUE)
 ```
 
 ## Usage summary
