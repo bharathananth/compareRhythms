@@ -17,7 +17,8 @@ compareRhythms(
   schwarz_wt_cutoff = 0.6,
   just_classify = TRUE,
   robust = TRUE,
-  outliers = FALSE
+  outliers = FALSE,
+  longitudinal = FALSE
 )
 }
 \arguments{
@@ -34,7 +35,9 @@ methods "deseq" and "edgeR".}
 selection, "dodr" for analysis using \link[DODR:dodr]{DODR::dodr}, "limma" for
 linear-modeling approach based on \pkg{limma}, "voom" for linear-modeling
 approach for RNA-Seq using \link[limma:voom]{limma::voom}, "deseq2" for RNA-seq analysis
-using \pkg{DESeq2}, and "edger" for RNA-seq analysis using \pkg{edgeR}.}
+using \pkg{DESeq2}, "edger" for RNA-seq analysis using \pkg{edgeR}, and
+"cosinor" for simple cosinor-based analysis both for independent samples
+and repeated samples.}
 
 \item{period}{The period of rhythm being tested (default = 24)}
 
@@ -64,6 +67,9 @@ different methods (default = TRUE).}
 
 \item{outliers}{Boolean specifying if weights must be computed for each
 sample to account for outliers. Only used by method = "voom".}
+
+\item{longitudinal}{Boolean specifying if repeated samples from one
+experimental unit. Only used by method = "cosinor".}
 }
 \value{
 A \emph{data.frame} with the names of the differentially rhythmic

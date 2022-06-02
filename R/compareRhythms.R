@@ -14,7 +14,9 @@
 #'   selection, "dodr" for analysis using [DODR::dodr], "limma" for
 #'   linear-modeling approach based on \pkg{limma}, "voom" for linear-modeling
 #'   approach for RNA-Seq using [limma::voom], "deseq2" for RNA-seq analysis
-#'   using \pkg{DESeq2}, and "edger" for RNA-seq analysis using \pkg{edgeR}.
+#'   using \pkg{DESeq2}, "edger" for RNA-seq analysis using \pkg{edgeR}, and
+#'   "cosinor" for simple cosinor-based analysis both for independent samples
+#'   and repeated samples.
 #' @param period The period of rhythm being tested (default = 24)
 #' @param rhythm_fdr The false discovery cutoff for finding rhythmic time series
 #'   (default = 0.05)
@@ -35,6 +37,8 @@
 #'   different methods (default = TRUE).
 #' @param outliers Boolean specifying if weights must be computed for each
 #'   sample to account for outliers. Only used by method = "voom".
+#' @param longitudinal Boolean specifying if repeated samples from one
+#'   experimental unit. Only used by method = "cosinor".
 #'
 #' @return A *data.frame* with the names of the differentially rhythmic
 #'   features, the category it is classified under and optionally the rhythm
@@ -47,7 +51,8 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
                            method = "mod_sel", period=24, rhythm_fdr = 0.05,
                            compare_fdr = 0.05, amp_cutoff = 0.5,
                            criterion = "bic", schwarz_wt_cutoff = 0.6,
-                           just_classify = TRUE, robust = TRUE, outliers = FALSE
+                           just_classify = TRUE, robust = TRUE, outliers = FALSE,
+                           longitudinal = FALSE
                            ) {
 
   assertthat::assert_that(
@@ -58,7 +63,7 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
     assertthat::are_equal(ncol(data), nrow(exp_design)),
     assertthat::has_name(exp_design, c("time", "group")),
     assertthat::noNA(data),
-    method %in% c("mod_sel", "limma", "dodr", "voom", "deseq2", "edger"),
+    method %in% c("mod_sel", "limma", "dodr", "voom", "deseq2", "edger","cosinor"),
     is.factor(exp_design$group),
     is.numeric(exp_design$time),
     length(levels(exp_design$group)) == 2,
@@ -76,15 +81,24 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
     schwarz_wt_cutoff >=0 & schwarz_wt_cutoff <=1.0,
     assertthat::is.flag(just_classify),
     assertthat::is.flag(robust),
-    assertthat::is.flag(outliers)
+    assertthat::is.flag(outliers),
+    assertthat::is.flag(longitudinal)
   )
   if (method %in% c("deseq", "edger") && !is.null(lengths)) {
     assertthat::assert_that(all(lengths>0), msg = "All transcript lengths are not positive")
   }
 
+  if (method == "cosinor" && longitudinal) {
+    assertthat::assert_that(assertthat::has_name(exp_design, "ID"))
+    if (assertthat::has_name(exp_design, "ID")) {
+      assertthat::assert_that(is.factor(exp_design$ID))
+    }
+  }
+
   if (assertthat::has_name(exp_design, "batch")) {
     assertthat::assert_that(is.factor(exp_design$batch))
   }
+
 
   switch (method,
           mod_sel = compareRhythms_model_select(data = data,
@@ -126,6 +140,10 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
           edger = compareRhythms_edgeR(counts = data, exp_design = exp_design,
                                        lengths = lengths, period = period, rhythm_fdr = rhythm_fdr,
                                        amp_cutoff = amp_cutoff, compare_fdr = compare_fdr,
-                                       just_classify = just_classify)
+                                       just_classify = just_classify),
+          cosinor = compareRhythms_cosinor(data = data, exp_design = exp_design, period = period,
+                                           rhythm_fdr = rhythm_fdr, compare_fdr = compare_fdr,
+                                           amp_cutoff = amp_cutoff, just_classify = just_classify,
+                                           longitudinal = longitudinal)
   )
 }

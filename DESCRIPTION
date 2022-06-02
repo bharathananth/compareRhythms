@@ -1,9 +1,9 @@
 Package: compareRhythms
 Type: Package
 Title: Approaches to identify Differential Rhythmicity
-Version: 0.99.3
+Version: 1.0.0
 Author: Bharath Ananthasubramaniam
-Maintainer: Bharath Ananthasubramaniam <bharath.ananth@charite.de>
+Maintainer: Bharath Ananthasubramaniam <bharath.ananthasubramaniam@hu-berlin.deu>
 Description: This package identifies features that have altered rhythms 
     between two conditions, i.e., are differentially rhythmic. Hypothesis 
     testing and model selection pipelines classify differentially 
@@ -24,7 +24,8 @@ Imports:
     assertthat (>= 0.2.1),
     edgeR (>= 3.28.0),
     DESeq2 (>= 1.26.0),
-    SummarizedExperiment (>= 1.16.1)
+    SummarizedExperiment (>= 1.16.1),
+    lme4 (>= 1.1.29)
 Suggests: 
     testthat (>= 2.1.0),
     statmod (>= 1.2.2),
