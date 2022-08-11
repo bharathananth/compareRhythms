@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![](https://img.shields.io/badge/devel%20version-1.0.0-green.svg)](https://github.com/compareRhythms)
+[![](https://img.shields.io/badge/devel%20version-1.0.1-green.svg)](https://github.com/compareRhythms)
 [![License:
 GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-project.org/web/licenses/GPL-3)
 [![](https://app.codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bharathananth/compareRhythms)
