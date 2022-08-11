@@ -29,7 +29,7 @@ compute_model_params <- function(y, group_id, d=NULL, type="fit") {
                       colnames(coeffs)))) {
     rhy_params <- coeffs[, base::paste(group_id[1],
                                        c("inphase", "outphase"),
-                                       sep = "_")]
+                                       sep = "_"), drop=FALSE]
     amps_A <- 2 * sqrt(base::rowSums(rhy_params^2))
     phases_A <- base::atan2(rhy_params[, 2], rhy_params[, 1]) %% (2*pi)
   } else {
@@ -41,7 +41,7 @@ compute_model_params <- function(y, group_id, d=NULL, type="fit") {
                       colnames(coeffs)))) {
     rhy_params <- coeffs[, base::paste(group_id[2],
                                        c("inphase", "outphase"),
-                                       sep = "_")]
+                                       sep = "_"), drop=FALSE]
     amps_B <- 2 * sqrt(base::rowSums(rhy_params^2))
     phases_B <- base::atan2(rhy_params[, 2], rhy_params[, 1])  %% (2*pi)
   } else {
@@ -51,7 +51,7 @@ compute_model_params <- function(y, group_id, d=NULL, type="fit") {
 
   if (all(base::is.element(c("inphase", "outphase"),
                            colnames(coeffs)))) {
-    rhy_params <- coeffs[, c("inphase", "outphase")]
+    rhy_params <- coeffs[, c("inphase", "outphase"), drop=FALSE]
     amps <- 2 * sqrt(base::rowSums(rhy_params^2))
     phases <- base::atan2(rhy_params[, 2], rhy_params[, 1])  %% (2*pi)
     model_params <- base::cbind(amps, phases, amps, phases)

@@ -40,14 +40,14 @@ compareRhythms_cosinor <- function(data, exp_design, period, rhythm_fdr,
 
    if (longitudinal) {
      fit <- lapply(1:nrow(data),
-                   function(i) list(lme4::lmer(data[i,]~(1|ID) + group + group:inphase + group:outphase, data = exp_design, REML=FALSE, control = lmer_control),
-                                    lme4::lmer(data[i,]~(1|ID) + group + inphase + outphase, data = exp_design, REML=FALSE, control = lmer_control),
-                                    lme4::lmer(data[i,]~(1|ID) + group, data = exp_design, REML=FALSE, control = lmer_control)))
+                   function(i) list(lme4::lmer(data[i,]~(1|ID) + group + group:inphase + group:outphase, data = exp_design, REML=FALSE, control = lmer_control, na.action = na.omit),
+                                    lme4::lmer(data[i,]~(1|ID) + group + inphase + outphase, data = exp_design, REML=FALSE, control = lmer_control, na.action = na.omit),
+                                    lme4::lmer(data[i,]~(1|ID) + group, data = exp_design, REML=FALSE, control = lmer_control, na.action = na.omit)))
    } else {
      fit <- lapply(1:nrow(data),
-                   function(i) list(lm(data[i,]~0 + group + group:inphase + group:outphase, data = exp_design),
-                                    lm(data[i,]~0 + group + inphase + outphase, data = exp_design),
-                                    lm(data[i,]~0 + group, data = exp_design)))
+                   function(i) list(lm(data[i,]~0 + group + group:inphase + group:outphase, data = exp_design, na.action = na.omit),
+                                    lm(data[i,]~0 + group + inphase + outphase, data = exp_design, na.action = na.omit),
+                                    lm(data[i,]~0 + group, data = exp_design, na.action = na.omit)))
    }
 
     fit_coeffs <- vapply(fit, function(f){

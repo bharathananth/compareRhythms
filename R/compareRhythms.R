@@ -58,11 +58,11 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
   assertthat::assert_that(
     is.matrix(data),
     assertthat::not_empty(data),
+    !is.null(rownames(data)),
     is.data.frame(exp_design),
     assertthat::not_empty(exp_design),
     assertthat::are_equal(ncol(data), nrow(exp_design)),
     assertthat::has_name(exp_design, c("time", "group")),
-    assertthat::noNA(data),
     method %in% c("mod_sel", "limma", "dodr", "voom", "deseq2", "edger","cosinor"),
     is.factor(exp_design$group),
     is.numeric(exp_design$time),
@@ -84,6 +84,9 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
     assertthat::is.flag(outliers),
     assertthat::is.flag(longitudinal)
   )
+  if (method != "cosinor"){
+    assertthat::noNA(data)
+  }
   if (method %in% c("deseq", "edger") && !is.null(lengths)) {
     assertthat::assert_that(all(lengths>0), msg = "All transcript lengths are not positive")
   }
