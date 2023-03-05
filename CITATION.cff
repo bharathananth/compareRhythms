@@ -1,0 +1,57 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: compareRhythms
+message: >-
+  If you use this software, please cite both the article
+  from preferred-citation and the software itself.
+type: software
+authors:
+  - given-names: Bharath
+    family-names: Ananthasubramaniam
+    email: bharath.ananthasubramaniam@hu-berlin.de
+    affiliation: Humboldt-Universität zu Berlin
+    orcid: 'https://orcid.org/0000-0003-4467-1546'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7699722
+    description: Version 1.0.0 on Zenodo
+  - type: doi
+    value: 10.1111/febs.16095
+    description: Paper regarding the software
+repository-code: 'https://github.com/bharathananth/compareRhythms'
+abstract: >-
+  The goal of compareRhythms is to find features with
+  altered circadian rhythm parameters (amplitude and phase)
+  between the control and experimental groups.
+keywords:
+  - R-package
+  - circadian rhythms
+  - differential rhythm analysis
+  - high-throughput data analysis
+  - data science
+license: GPL-3.0
+commit: 4dec1e2cf6bed45fbe68f2de8c561a62dca8e6a6
+version: 1.0.0
+date-released: '2022-06-02'
+preferred-citation:
+  authors:
+    - family-names: Pelikan
+      given-names: Anne
+    - family-names: Herzel
+      given-names: Hanspeter
+    - family-names: Kramer
+      given-names: Achim
+    - family-names: Ananthasubramaniam
+      given-names: Bharath
+  title: Venn diagram analysis overestimates the extent of circadian rhythm reprogramming
+  type: article
+  journal: FEBS Journal
+  volume: 289
+  issue: 21
+  start: 6605
+  end: 6621
+  month: 11
+  year: 2022
+  doi: 10.1111/febs.16095
