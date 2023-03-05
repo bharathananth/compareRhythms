@@ -30,6 +30,7 @@ cat(
 	badge_doi("10.1111/febs.16095", "yellow")
 )
 ```
+[![DOI](https://zenodo.org/badge/314899899.svg)](https://zenodo.org/badge/latestdoi/314899899)
 <!-- badges: end -->
 
 
@@ -59,12 +60,12 @@ library(compareRhythms)
 vignette("UserGuide", package="compareRhythms")
 ```
 
-## Reference
+## Citation
 
-To cite *compareRhythms* in publications use:
+Please cite *compareRhythms* in publications as:
 
-  Venn diagram analysis overestimates the extent of circadian rhythm reprogramming. FEBS Journal, *In Press*. URL
-  https://febs.onlinelibrary.wiley.com/doi/10.1111/febs.16095
+-  Software v1.0.0  https://doi.org/10.5281/zenodo.7699722
+-  Venn diagram analysis overestimates the extent of circadian rhythm reprogramming. FEBS J, 289: 6605-6621. https://doi.org/10.1111/febs.16095
   
   The R code to perform all the analyses in this publication (using *compareRhythms*) can be found in the repository https://github.com/bharathananth/FEBSJ-VDA-overestimates
 

@@ -8,9 +8,10 @@
 [![](https://img.shields.io/badge/devel%20version-1.0.1-green.svg)](https://github.com/compareRhythms)
 [![License:
 GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-project.org/web/licenses/GPL-3)
-[![](https://app.codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bharathananth/compareRhythms)
+[![](https://codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg)](https://codecov.io/gh/bharathananth/compareRhythms)
 [![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![](https://img.shields.io/badge/doi-10.1111/febs.16095-yellow.svg)](https://doi.org/10.1111/febs.16095)
+[![DOI](https://zenodo.org/badge/314899899.svg)](https://zenodo.org/badge/latestdoi/314899899)
 <!-- badges: end -->
 
 The goal of *compareRhythms* is to find features with altered circadian
@@ -53,13 +54,14 @@ library(compareRhythms)
 vignette("UserGuide", package="compareRhythms")
 ```
 
-## Reference
+## Citation
 
-To cite *compareRhythms* in publications use:
+Please cite *compareRhythms* in publications as:
 
-Venn diagram analysis overestimates the extent of circadian rhythm
-reprogramming. FEBS Journal, *In Press*. URL
-<https://febs.onlinelibrary.wiley.com/doi/10.1111/febs.16095>
+- Software v1.0.0 <https://doi.org/10.5281/zenodo.7699722>
+- Venn diagram analysis overestimates the extent of circadian rhythm
+  reprogramming. FEBS J, 289: 6605-6621.
+  <https://doi.org/10.1111/febs.16095>
 
 The R code to perform all the analyses in this publication (using
 *compareRhythms*) can be found in the repository
