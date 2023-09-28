@@ -95,6 +95,14 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
 
   results$rhythmic_in_B <- results[, paste0(group_id[2], "_amp")] > amp_cutoff
 
+  assertthat::assert_that(
+    assertthat::noNA(diff_rhy_results$pvalue),
+    assertthat::noNA(diff_rhy_results$padj),
+    assertthat::noNA(rhythmic_in_either$padj),
+    msg = "DESeq2 is producing NA in p-values. Check if your count matrix has
+    too many zero counts or too many outliers."
+  )
+
   results$category <- base::mapply(categorize,
                                    results$rhythmic_in_A,
                                    results$rhythmic_in_B,
