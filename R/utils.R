@@ -9,7 +9,7 @@ compute_circ_params <- function(y, t, period) {
 
   amps <- 2 * sqrt(base::colSums(fit$coefficients[-1, ]^2))
 
-  phases <- (atan2(fit$coefficients[3, ], fit$coefficients[2, ]) %% (2*pi))
+  phases <- (atan2(fit$coefficients[2, ], fit$coefficients[3, ]) %% (2*pi))
 
   return(base::cbind(amps = amps, phases = phases))
 
@@ -31,7 +31,7 @@ compute_model_params <- function(y, group_id, d=NULL, type="fit") {
                                        c("inphase", "outphase"),
                                        sep = "_"), drop=FALSE]
     amps_A <- 2 * sqrt(base::rowSums(rhy_params^2))
-    phases_A <- base::atan2(rhy_params[, 2], rhy_params[, 1]) %% (2*pi)
+    phases_A <- base::atan2(rhy_params[, 1], rhy_params[, 2]) %% (2*pi)
   } else {
     amps_A <- 0
     phases_A <- 0
@@ -43,7 +43,7 @@ compute_model_params <- function(y, group_id, d=NULL, type="fit") {
                                        c("inphase", "outphase"),
                                        sep = "_"), drop=FALSE]
     amps_B <- 2 * sqrt(base::rowSums(rhy_params^2))
-    phases_B <- base::atan2(rhy_params[, 2], rhy_params[, 1])  %% (2*pi)
+    phases_B <- base::atan2(rhy_params[, 1], rhy_params[, 2])  %% (2*pi)
   } else {
     amps_B <- 0
     phases_B <- 0
@@ -53,7 +53,7 @@ compute_model_params <- function(y, group_id, d=NULL, type="fit") {
                            colnames(coeffs)))) {
     rhy_params <- coeffs[, c("inphase", "outphase"), drop=FALSE]
     amps <- 2 * sqrt(base::rowSums(rhy_params^2))
-    phases <- base::atan2(rhy_params[, 2], rhy_params[, 1])  %% (2*pi)
+    phases <- base::atan2(rhy_params[, 1], rhy_params[, 2])  %% (2*pi)
     model_params <- base::cbind(amps, phases, amps, phases)
   } else {
     model_params <- base::cbind(amps_A, phases_A, amps_B, phases_B)
