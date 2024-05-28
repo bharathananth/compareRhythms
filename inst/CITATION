@@ -8,13 +8,13 @@ citEntry(
                         as.person("Achim Kramer"),
                         as.person("Bharath Ananthasubramaniam")),
   journal  = "FEBS Journal",
-  year     = "2021",
-  volume   = "",
-  number   = "",
-  pages    = "",
+  year     = "2022",
+  volume   = "289",
+  number   = "21",
+  pages    = "6605-6621",
   doi      = "10.1111/febs.16095",
   textVersion = paste("Venn diagram analysis overestimates the extent of circadian rhythm reprogramming.",
-  "FEBS Journal, In Press.",
+  "FEBS Journal, 289: 6605-6621.",
   "URL https://febs.onlinelibrary.wiley.com/doi/10.1111/febs.16095"
   )
 )
