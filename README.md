@@ -16,9 +16,9 @@ GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-pro
 
 The goal of *compareRhythms* is to find features with altered circadian
 rhythm parameters (*amplitude* and *phase*) between the control and
-experimental groups. A fit of the function
-$A\cos(\frac{2\pi t}{24} - \phi)$ to the data defines the rhythm
-parameters amplitude ($A$) and phase ($\phi$).
+experimental groups. A fit of the function $A\cos(2\pi t/24 - \phi)$ to
+the data defines the rhythm parameters amplitude ($A$) and phase
+($\phi$).
 
 ## Installation
 

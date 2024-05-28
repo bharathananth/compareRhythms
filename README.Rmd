@@ -34,7 +34,7 @@ cat(
 <!-- badges: end -->
 
 
-The goal of *compareRhythms* is to find features with altered circadian rhythm parameters (*amplitude* and *phase*) between the control and experimental groups. A fit of the function $A\cos(\frac{2\pi t}{24} - \phi)$ to the data defines the rhythm parameters amplitude ($A$) and phase ($\phi$). 
+The goal of *compareRhythms* is to find features with altered circadian rhythm parameters (*amplitude* and *phase*) between the control and experimental groups. A fit of the function $A\cos(2\pi t/24 - \phi)$ to the data defines the rhythm parameters amplitude ($A$) and phase ($\phi$). 
 
 ## Installation
 
