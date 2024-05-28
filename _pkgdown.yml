@@ -1,0 +1,7 @@
+url: https://bharathananth.github.io/compareRhythms/
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    pkgdown-nav-height: 75px
+

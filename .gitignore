@@ -1,0 +1,14 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+inst/doc
+doc
+Meta
+man/
+data-raw/
+*.svg
+R/data.R
+pkgdown/
+

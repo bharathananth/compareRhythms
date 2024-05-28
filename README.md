@@ -16,7 +16,9 @@ GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-pro
 
 The goal of *compareRhythms* is to find features with altered circadian
 rhythm parameters (*amplitude* and *phase*) between the control and
-experimental groups.
+experimental groups. A fit of the function
+$A\cos(\frac{2\pi t}{24} - \phi)$ to the data defines the rhythm
+parameters amplitude ($A$) and phase ($\phi$).
 
 ## Installation
 
@@ -26,7 +28,7 @@ with:
 ``` r
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install(version = "3.15")   # This installs bioconductor
+BiocManager::install(version = "3.19")   # This installs bioconductor, but version 3.15 onwards are also ok
 BiocManager::install(c("SummarizedExperiment", "DESeq2", "edgeR", "limma", "rain")) # Packages needed by compareRhythms
 install.packages("devtools")    # if it is not already installed
 devtools::install_github("cran/npsm")   # Package archived by CRAN
@@ -53,6 +55,9 @@ Guide** by running
 library(compareRhythms)
 vignette("UserGuide", package="compareRhythms")
 ```
+
+or view the
+[documentation](https://bharathananth.github.io/compareRhythms/articles/UserGuide.html).
 
 ## Citation
 

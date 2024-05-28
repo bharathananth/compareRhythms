@@ -11,7 +11,7 @@ Description: This package identifies features that have altered rhythms
     single function with customizations for microarray, RNA-seq or generic 
     (prenormalized) data.
 License: GPL-3
-URL: https://github.com/bharathananth/compareRhythms
+URL: https://github.com/bharathananth/compareRhythms, https://bharathananth.github.io/compareRhythms/
 BugReports: https://github.com/bharathananth/compareRhythms/issues
 Encoding: UTF-8
 LazyData: true
@@ -32,6 +32,15 @@ Suggests:
     knitr,
     rmarkdown,
     tidyverse
+Remotes:
+    github::cran/npsm,
+    github::cran/DODR,
+    github::hadley/assertthat@>=0.2.1,
+    bioc::SummarizedExperiment@>=1.16.1, 
+    bioc::limma@>=3.38.3,
+    bioc::edgeR@>=3.28.0,
+    bioc::DESeq2@>=1.26.0,
+    bioc::rain@>=1.16.0
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
