@@ -3,7 +3,7 @@ Type: Package
 Title: Approaches to identify Differential Rhythmicity
 Version: 1.0.2
 Author: Bharath Ananthasubramaniam
-Maintainer: Bharath Ananthasubramaniam <bharath.ananthasubramaniam@hu-berlin.deu>
+Maintainer: Bharath Ananthasubramaniam <bharath.ananthasubramaniam@hu-berlin.de>
 Description: This package identifies features that have altered rhythms 
     between two conditions, i.e., are differentially rhythmic. Hypothesis 
     testing and model selection pipelines classify differentially 
