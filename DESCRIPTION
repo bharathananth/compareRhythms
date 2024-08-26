@@ -33,14 +33,11 @@ Suggests:
     rmarkdown,
     tidyverse
 Remotes:
+    github::r-lib/remotes,
+    github::hadley/devtools,
     github::cran/npsm,
     github::cran/DODR,
-    github::hadley/assertthat@>=0.2.1,
-    bioc::SummarizedExperiment@>=1.16.1, 
-    bioc::limma@>=3.38.3,
-    bioc::edgeR@>=3.28.0,
-    bioc::DESeq2@>=1.26.0,
-    bioc::rain@>=1.16.0
+    github::hadley/assertthat@>=0.2.1
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
