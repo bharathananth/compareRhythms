@@ -37,7 +37,7 @@ Remotes:
     github::hadley/devtools,
     github::cran/npsm,
     github::cran/DODR,
-    github::hadley/assertthat@>=0.2.1
+    github::hadley/assertthat@v0.2.1
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
