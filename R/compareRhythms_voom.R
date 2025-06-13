@@ -6,7 +6,7 @@
 
 compareRhythms_voom <- function(counts, exp_design, period, rhythm_fdr,
                                 compare_fdr, amp_cutoff, just_classify,
-                                robust, outliers) {
+                                robust, outliers, just_rhythms) {
 
   exp_design_aug <- base::cbind(exp_design,
                                 inphase = cos(2 * pi * exp_design$time / period),
@@ -35,7 +35,8 @@ compareRhythms_voom <- function(counts, exp_design, period, rhythm_fdr,
 
   results <- compareRhythms_limma(v, exp_design, period = period, rhythm_fdr = rhythm_fdr,
                        compare_fdr = compare_fdr, amp_cutoff = amp_cutoff,
-                       just_classify = just_classify, robust = robust, rna_seq = TRUE)
+                       just_classify = just_classify, robust = robust, rna_seq = TRUE,
+                       just_rhythms=just_rhythms)
 
   return(results)
 }

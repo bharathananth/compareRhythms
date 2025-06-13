@@ -5,7 +5,7 @@
 
 compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
                                   rhythm_fdr, compare_fdr, amp_cutoff,
-                                  just_classify) {
+                                  just_classify, just_rhythms) {
 
   exp_design_aug <- base::cbind(exp_design,
                                 inphase = cos(2 * pi * exp_design$time / period),
@@ -110,6 +110,33 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
 
   main_cols <- c("id", "category", "rhythmic_in_A", "rhythmic_in_B",
                  "diff_rhythmic")
+
+  if (!just_rhythms) {
+    group_id <- base::levels(exp_design$group)
+    diff_exp_results <- DESeq2::results(dds,
+                                        name = group_id[2],
+                                        independentFiltering = FALSE,
+                                        cooksCutoff = FALSE,
+                                        alpha = rhythm_fdr)
+
+    padj <- NULL
+    diff_exp_results <- subset(diff_exp_results,
+                               padj <= rhythm_fdr)
+
+    diff_exp_results <- diff_exp_results[, c("log2FoldChange", "padj")]
+    colnames(diff_exp_results) <- c("logFC_DE", "adj_p_val_DE")
+
+    diff_exp_results$category_DE <- ifelse(diff_exp_results$logFC_DE>=0,
+                                           "up-reg","down-reg")
+    diff_exp_results$id <- rownames(diff_exp_results)
+
+    rownames(diff_exp_results) <- NULL
+    results <- merge(results, diff_exp_results, by="id", all=TRUE)
+
+    main_cols <- c(main_cols, "category_DE")
+
+    print(diff_exp_results)
+  }
 
   results <- results[, c(main_cols,
                          base::setdiff(colnames(results), main_cols))]

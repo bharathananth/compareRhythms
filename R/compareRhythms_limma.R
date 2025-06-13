@@ -6,7 +6,7 @@
 
 compareRhythms_limma <- function(eset, exp_design, period, rhythm_fdr,
                                  compare_fdr, amp_cutoff, just_classify,
-                                 robust, rna_seq) {
+                                 robust, rna_seq, just_rhythms) {
 
   group_id <- base::levels(exp_design$group)
 
@@ -84,9 +84,34 @@ compareRhythms_limma <- function(eset, exp_design, period, rhythm_fdr,
                                 results$rhythmic_in_B,
                                 results$diff_rhythmic)
 
-
   main_cols <- c("id", "category", "rhythmic_in_A", "rhythmic_in_B",
                  "diff_rhythmic")
+
+  if (!just_rhythms) {
+    diff_exp_contrast <- limma::makeContrasts(contrasts = paste(rev(group_id),
+                                                                sep="",
+                                                                collapse="-"),
+                                              levels = design)
+
+    diff_exp_fit <- limma::contrasts.fit(fit, diff_exp_contrast)
+
+    diff_exp_fit <- limma::eBayes(diff_exp_fit, robust = robust, trend = !rna_seq)
+
+    diff_exp_results <- limma::topTable(diff_exp_fit, number = Inf,
+                                        sort.by = "none", p.value = rhythm_fdr)
+
+    diff_exp_results <- diff_exp_results[, c("logFC", "adj.P.Val")]
+    colnames(diff_exp_results) <- c("logFC_DE", "adj_p_val_DE")
+
+    diff_exp_results$category_DE <- ifelse(diff_exp_results$logFC_DE>=0,
+                                           "up-reg","down-reg")
+    diff_exp_results$id <- rownames(diff_exp_results)
+
+    rownames(diff_exp_results) <- NULL
+    results <- merge(results, diff_exp_results, by="id", all=TRUE)
+
+    main_cols <- c(main_cols, "category_DE")
+  }
 
   results <- results[, c(main_cols,
                          base::setdiff(colnames(results), main_cols))]

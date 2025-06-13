@@ -47,6 +47,16 @@ test_that("limma analysis works for different input params with batch", {
                c("id", "category", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "CC_amp",
                  "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC_or_KD",
                  "adj_p_val_DR"))
+  results <- compareRhythms(expr, exp_design_batch, just_rhythms = FALSE, method = "limma")
+  expect_s3_class(results, "data.frame")
+  expect_named(results,
+               c("id", "category", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category_DE"))
+  results <- compareRhythms(expr, exp_design_batch, just_classify = FALSE, just_rhythms = FALSE, method = "limma")
+  expect_s3_class(results, "data.frame")
+  expect_named(results,
+               c("id", "category", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "category_DE", "CC_amp",
+                 "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC_or_KD",
+                 "adj_p_val_DR", "logFC_DE", "adj_p_val_DE"))
 })
 
 test_that("limma analysis runs for arrhythmic dataset", {

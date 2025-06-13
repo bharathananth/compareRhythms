@@ -39,6 +39,9 @@
 #'   sample to account for outliers. Only used by method = "voom".
 #' @param longitudinal Boolean specifying if repeated samples from one
 #'   experimental unit. Only used by method = "cosinor".
+#' @param just_rhythms Boolean specifying whether only rhythm analysis (True,
+#'   default) or differential expression/magnitude analysis should also be
+#'   performed.
 #'
 #' @return A *data.frame* with the names of the differentially rhythmic
 #'   features, the category it is classified under and optionally the rhythm
@@ -52,7 +55,7 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
                            compare_fdr = 0.05, amp_cutoff = 0.5,
                            criterion = "bic", schwarz_wt_cutoff = 0.6,
                            just_classify = TRUE, robust = TRUE, outliers = FALSE,
-                           longitudinal = FALSE
+                           longitudinal = FALSE, just_rhythms = TRUE
                            ) {
 
   assertthat::assert_that(
@@ -82,7 +85,8 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
     assertthat::is.flag(just_classify),
     assertthat::is.flag(robust),
     assertthat::is.flag(outliers),
-    assertthat::is.flag(longitudinal)
+    assertthat::is.flag(longitudinal),
+    assertthat::is.flag(just_rhythms)
   )
   if (method != "cosinor"){
     assertthat::noNA(data)
@@ -126,7 +130,8 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
                                        compare_fdr = compare_fdr,
                                        just_classify = just_classify,
                                        rna_seq = FALSE,
-                                       robust = robust),
+                                       robust = robust,
+                                       just_rhythms=just_rhythms),
           voom = compareRhythms_voom(counts = data,
                                      exp_design = exp_design,
                                      period = period,
@@ -135,18 +140,33 @@ compareRhythms <- function(data, exp_design, lengths=NULL,
                                      compare_fdr = compare_fdr,
                                      just_classify = just_classify,
                                      robust = robust,
-                                     outliers = outliers),
-          deseq2 = compareRhythms_deseq2(counts = data, exp_design = exp_design,
-                                        lengths = lengths, period = period, rhythm_fdr = rhythm_fdr,
-                                        amp_cutoff = amp_cutoff, compare_fdr = compare_fdr,
-                                        just_classify = just_classify),
-          edger = compareRhythms_edgeR(counts = data, exp_design = exp_design,
-                                       lengths = lengths, period = period, rhythm_fdr = rhythm_fdr,
-                                       amp_cutoff = amp_cutoff, compare_fdr = compare_fdr,
-                                       just_classify = just_classify),
-          cosinor = compareRhythms_cosinor(data = data, exp_design = exp_design, period = period,
-                                           rhythm_fdr = rhythm_fdr, compare_fdr = compare_fdr,
-                                           amp_cutoff = amp_cutoff, just_classify = just_classify,
+                                     outliers = outliers,
+                                     just_rhythms = just_rhythms),
+          deseq2 = compareRhythms_deseq2(counts = data,
+                                         exp_design = exp_design,
+                                         lengths = lengths,
+                                         period = period,
+                                         rhythm_fdr = rhythm_fdr,
+                                         amp_cutoff = amp_cutoff,
+                                         compare_fdr = compare_fdr,
+                                         just_classify = just_classify,
+                                         just_rhythms = just_rhythms),
+          edger = compareRhythms_edgeR(counts = data,
+                                       exp_design = exp_design,
+                                       lengths = lengths,
+                                       period = period,
+                                       rhythm_fdr = rhythm_fdr,
+                                       amp_cutoff = amp_cutoff,
+                                       compare_fdr = compare_fdr,
+                                       just_classify = just_classify,
+                                       just_rhythms = just_rhythms),
+          cosinor = compareRhythms_cosinor(data = data,
+                                           exp_design = exp_design,
+                                           period = period,
+                                           rhythm_fdr = rhythm_fdr,
+                                           compare_fdr = compare_fdr,
+                                           amp_cutoff = amp_cutoff,
+                                           just_classify = just_classify,
                                            longitudinal = longitudinal)
   )
 }

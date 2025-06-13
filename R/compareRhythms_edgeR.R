@@ -5,7 +5,7 @@
 
 compareRhythms_edgeR <- function(counts, exp_design, lengths, period,
                                  rhythm_fdr, compare_fdr, amp_cutoff,
-                                 just_classify) {
+                                 just_classify, just_rhythms) {
 
   exp_design_aug <- base::cbind(exp_design,
                                 inphase = cos(2 * pi * exp_design$time / period),
@@ -105,6 +105,26 @@ compareRhythms_edgeR <- function(counts, exp_design, lengths, period,
 
   main_cols <- c("id", "category", "rhythmic_in_A", "rhythmic_in_B",
                  "diff_rhythmic")
+
+  if (!just_rhythms) {
+    diff_exp_fit <- edgeR::glmQLFTest(fit, coef = group_id[2])
+
+    diff_exp_results <- edgeR::topTags(diff_exp_fit, n = Inf,
+                                        sort.by = "none", p.value = rhythm_fdr)
+
+    diff_exp_results <- data.frame(diff_exp_results)
+    diff_exp_results <- diff_exp_results[, c("logFC", "FDR")]
+    colnames(diff_exp_results) <- c("logFC_DE", "adj_p_val_DE")
+
+    diff_exp_results$category_DE <- ifelse(diff_exp_results$logFC_DE>=0,
+                                           "up-reg","down-reg")
+    diff_exp_results$id <- rownames(diff_exp_results)
+
+    rownames(diff_exp_results) <- NULL
+    results <- merge(results, diff_exp_results, by="id", all=TRUE)
+
+    main_cols <- c(main_cols, "category_DE")
+  }
 
   results <- results[, c(main_cols,
                          base::setdiff(colnames(results), main_cols))]

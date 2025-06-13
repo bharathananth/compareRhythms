@@ -1,6 +1,6 @@
 #' Run differential rhythmicity analysis for microarray using limma
 #'
-#' @param eset A matrix of expression values with gene in the rows and samples in columns
+#' @param data A matrix of expression values with gene in the rows and samples in columns
 #' @inheritParams compareRhythms
 #' @keywords internal
 #' @export
@@ -25,13 +25,13 @@ compareRhythms_cosinor <- function(data, exp_design, period, rhythm_fdr,
                                      lme4::lmer(data[i,]~(1|ID) + group + batch, data = exp_design, REML=FALSE, control = lmer_control)))
     } else {
       fit <- lapply(1:nrow(data),
-                    function(i) list(lm(data[i,]~0 + group + group:inphase + group:outphase + batch, data = exp_design),
-                                     lm(data[i,]~0 + group + inphase + outphase + batch, data = exp_design),
-                                     lm(data[i,]~0 + group + batch, data = exp_design)))
+                    function(i) list(stats::lm(data[i,]~0 + group + group:inphase + group:outphase + batch, data = exp_design),
+                                     stats::lm(data[i,]~0 + group + inphase + outphase + batch, data = exp_design),
+                                     stats::lm(data[i,]~0 + group + batch, data = exp_design)))
     }
 
     fit_coeffs <- vapply(fit, function(f){
-      coefficients <- if (longitudinal) lme4::fixef(f[[1]]) else coef(f[[1]])
+      coefficients <- if (longitudinal) lme4::fixef(f[[1]]) else stats::coef(f[[1]])
       names(coefficients) <- gsub("group", "", names(coefficients))
       names(coefficients) <- gsub(":", "_", names(coefficients))
       return(coefficients)
@@ -40,18 +40,18 @@ compareRhythms_cosinor <- function(data, exp_design, period, rhythm_fdr,
 
    if (longitudinal) {
      fit <- lapply(1:nrow(data),
-                   function(i) list(lme4::lmer(data[i,]~(1|ID) + group + group:inphase + group:outphase, data = exp_design, REML=FALSE, control = lmer_control, na.action = na.omit),
-                                    lme4::lmer(data[i,]~(1|ID) + group + inphase + outphase, data = exp_design, REML=FALSE, control = lmer_control, na.action = na.omit),
-                                    lme4::lmer(data[i,]~(1|ID) + group, data = exp_design, REML=FALSE, control = lmer_control, na.action = na.omit)))
+                   function(i) list(lme4::lmer(data[i,]~(1|ID) + group + group:inphase + group:outphase, data = exp_design, REML=FALSE, control = lmer_control, na.action = stats::na.omit),
+                                    lme4::lmer(data[i,]~(1|ID) + group + inphase + outphase, data = exp_design, REML=FALSE, control = lmer_control, na.action = stats::na.omit),
+                                    lme4::lmer(data[i,]~(1|ID) + group, data = exp_design, REML=FALSE, control = lmer_control, na.action = stats::na.omit)))
    } else {
      fit <- lapply(1:nrow(data),
-                   function(i) list(lm(data[i,]~0 + group + group:inphase + group:outphase, data = exp_design, na.action = na.omit),
-                                    lm(data[i,]~0 + group + inphase + outphase, data = exp_design, na.action = na.omit),
-                                    lm(data[i,]~0 + group, data = exp_design, na.action = na.omit)))
+                   function(i) list(stats::lm(data[i,]~0 + group + group:inphase + group:outphase, data = exp_design, na.action = stats::na.omit),
+                                    stats::lm(data[i,]~0 + group + inphase + outphase, data = exp_design, na.action = stats::na.omit),
+                                    stats::lm(data[i,]~0 + group, data = exp_design, na.action = stats::na.omit)))
    }
 
     fit_coeffs <- vapply(fit, function(f){
-      coefficients <- if (longitudinal) lme4::fixef(f[[1]]) else coef(f[[1]])
+      coefficients <- if (longitudinal) lme4::fixef(f[[1]]) else stats::coef(f[[1]])
       names(coefficients) <- gsub("group", "", names(coefficients))
       names(coefficients) <- gsub(":", "_", names(coefficients))
       return(coefficients)
@@ -63,13 +63,13 @@ compareRhythms_cosinor <- function(data, exp_design, period, rhythm_fdr,
   rownames(fit_coeffs) <- rownames(data)
 
   rhythmic_in_either <- vapply(fit, function(f) {
-                                  d <- anova(f[[3]], f[[1]], test=ifelse(longitudinal,"LRT", "F"))
+                                  d <- stats::anova(f[[3]], f[[1]], test=ifelse(longitudinal,"LRT", "F"))
                                   ifelse(longitudinal, d$`Pr(>Chisq)`[2], d$`Pr(>F)`[2])
                                }, FUN.VALUE = double(1L))
 
   names(rhythmic_in_either) <- rownames(data)
 
-  adj_pval <- p.adjust(rhythmic_in_either, method = "fdr")
+  adj_pval <- stats::p.adjust(rhythmic_in_either, method = "fdr")
 
   results <- compute_model_params(fit_coeffs, group_id, type = "coef")
 
@@ -94,7 +94,7 @@ compareRhythms_cosinor <- function(data, exp_design, period, rhythm_fdr,
 
   diff_rhy_results <- vapply(fit,
                              function(f) {
-                               d <- anova(f[[2]], f[[1]], test=ifelse(longitudinal,"LRT", "F"))
+                               d <- stats::anova(f[[2]], f[[1]], test=ifelse(longitudinal,"LRT", "F"))
                                ifelse(longitudinal, d$`Pr(>Chisq)`[2], d$`Pr(>F)`[2])
                              }, FUN.VALUE = double(1L))
   names(diff_rhy_results) <- rownames(data)

@@ -18,7 +18,8 @@ compareRhythms(
   just_classify = TRUE,
   robust = TRUE,
   outliers = FALSE,
-  longitudinal = FALSE
+  longitudinal = FALSE,
+  just_rhythms = TRUE
 )
 }
 \arguments{
@@ -70,6 +71,10 @@ sample to account for outliers. Only used by method = "voom".}
 
 \item{longitudinal}{Boolean specifying if repeated samples from one
 experimental unit. Only used by method = "cosinor".}
+
+\item{just_rhythms}{Boolean specifying whether only rhythm analysis (True,
+default) or differential expression/magnitude analysis should also be
+performed.}
 }
 \value{
 A \emph{data.frame} with the names of the differentially rhythmic

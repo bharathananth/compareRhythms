@@ -67,4 +67,15 @@ test_that("edger analysis works for different input params with batch", {
                c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic",
                  "P66KO_amp", "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR"))
+  results <- compareRhythms(countsFromAbundance, exp_design_batch, just_rhythms = FALSE, method = "edger")
+  expect_s3_class(results, "data.frame")
+  expect_named(results,
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic",
+                 "category_DE"))
+  results <- compareRhythms(countsFromAbundance, exp_design_batch, just_classify = FALSE, just_rhythms = FALSE, method = "edger")
+  expect_s3_class(results, "data.frame")
+  expect_named(results,
+               c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category_DE",
+                 "P66KO_amp", "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
+                 "adj_p_val_DR", "logFC_DE", "adj_p_val_DE"))
 })
