@@ -113,7 +113,11 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
 
   if (!just_rhythms) {
     group_id <- base::levels(exp_design$group)
-    diff_exp_results <- DESeq2::results(dds,
+
+    dds_exp <- DESeq2::DESeq(dds, test = "Wald",
+                         quiet = TRUE)
+
+    diff_exp_results <- DESeq2::results(dds_exp,
                                         name = group_id[2],
                                         independentFiltering = FALSE,
                                         cooksCutoff = FALSE,
@@ -134,8 +138,6 @@ compareRhythms_deseq2 <- function(counts, exp_design, lengths, period,
     results <- merge(results, diff_exp_results, by="id", all=TRUE)
 
     main_cols <- c(main_cols, "category_DE")
-
-    print(diff_exp_results)
   }
 
   results <- results[, c(main_cols,
