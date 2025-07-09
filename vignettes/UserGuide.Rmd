@@ -2,7 +2,9 @@
 title: "Analyzing rhythmic data with compareRhythms"
 author: Bharath Ananthasubramaniam
 date: 02 Jun 2022
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette
+    self_contained: true
 vignette: >
   %\VignetteIndexEntry{Analyzing rhythmic data with compareRhythms}
   %\VignetteEngine{knitr::rmarkdown}
