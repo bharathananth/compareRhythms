@@ -36,6 +36,20 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      - name: Pre-render vignette with self-contained HTML
+        run: |
+          rmarkdown::render(
+            input = "vignettes/UserGuide.Rmd",
+            output_format = rmarkdown::html_document(self_contained = TRUE),
+            output_file = "UserGuide.html"
+          )
+        shell: Rscript {0}
+
+      - name: Copy pre-rendered vignette to docs/articles
+        run: |
+          mkdir -p docs/articles
+          cp UserGuide.html docs/articles/UserGuide.html
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}

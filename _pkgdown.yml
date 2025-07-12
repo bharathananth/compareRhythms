@@ -4,6 +4,9 @@ template:
   bootswatch: flatly
   bslib:
     "pkgdown-nav-height": 75px
+build:
+  articles: false
+
 navbar:
   components:
     articles:
