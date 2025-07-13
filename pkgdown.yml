@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   UserGuide: UserGuide.html
-last_built: 2025-07-13T06:46Z
+last_built: 2025-07-13T07:40Z
 urls:
   reference: https://bharathananth.github.io/compareRhythms/reference
   article: https://bharathananth.github.io/compareRhythms/articles
