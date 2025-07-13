@@ -48,7 +48,7 @@ jobs:
       - name: Copy pre-rendered vignette to docs/articles
         run: |
           mkdir -p docs/articles
-          cp UserGuide.html docs/articles/UserGuide.html
+          cp vignettes/UserGuide.html docs/articles/UserGuide.html
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
