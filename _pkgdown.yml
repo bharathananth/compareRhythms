@@ -4,6 +4,7 @@ template:
   bootswatch: flatly
   bslib:
     "pkgdown-nav-height": 75px
+
 build:
   articles: false
 
@@ -11,7 +12,8 @@ navbar:
   components:
     articles:
       text: User guide
-      href: articles/UserGuide.html
+      href: articles/UserGuide_manual.html
+
 reference:
   - title: "Main function"
     contents:
