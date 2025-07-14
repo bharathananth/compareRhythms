@@ -53,13 +53,20 @@
 </h1>
 </div>
 <!-- badges: start -->
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#&gt; Warning: `git_branch_default()` was deprecated in usethis 2.1.0.</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt; ℹ Please use `git_default_branch()` instead.</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; ℹ The deprecated feature was likely used in the badger package.</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt;   Please report the issue at &lt;https://github.com/GuangchuangYu/badger/issues&gt;.</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; generated.</span></span></code></pre></div>
 
 <p>The goal of <em>compareRhythms</em> is to find features with altered circadian rhythm parameters (<em>amplitude</em> and <em>phase</em>) between the control and experimental groups. A fit of the function <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>cos</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>π</mi><mi>t</mi><mi>/</mi><mn>24</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">A\cos(2\pi t/24 - \phi)</annotation></semantics></math> to the data defines the rhythm parameters amplitude (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>) and phase (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>).</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>You can install the current version of <em>compareRhythms</em> from GitHub with:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.github.io/BiocManager/" class="external-link">"BiocManager"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
 <span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu">install</span><span class="op">(</span>version <span class="op">=</span> <span class="st">"3.19"</span><span class="op">)</span>   <span class="co"># This installs bioconductor, but version 3.15 onwards are also ok</span></span>
@@ -74,7 +81,7 @@
 </h2>
 <p>The analysis is run using a single function <code><a href="reference/compareRhythms.html">compareRhythms()</a></code>. To execute this function, the three necessary ingredients are the timeseries data, the experimental design and parameters to choose and tune the method. The output of the function is a <em>data.frame</em> with the IDs of the differentially rhythmic features, the category it is classified under and optionally the rhythm parameters of the feature in the two groups. The differential rhythmicity categories are <strong>gain</strong> of, <strong>loss</strong> of, <strong>change</strong> of, or <strong>same</strong> rhythms (with respect to the reference/control group).</p>
 <p>For complete examples, please refer to the vignette titled <strong>User Guide</strong> by running</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bharathananth/compareRhythms" class="external-link">compareRhythms</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"UserGuide"</span>, package<span class="op">=</span><span class="st">"compareRhythms"</span><span class="op">)</span></span></code></pre></div>
 <p>or view the <a href="https://bharathananth.github.io/compareRhythms/articles/UserGuide.html">documentation</a>.</p>
@@ -131,9 +138,9 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/compareRhythms" class="external-link"><img src="https://img.shields.io/badge/devel%20version-1.0.2-green.svg"></a></li>
+<li><a href="https://github.com/compareRhythms" class="external-link"><img src="https://img.shields.io/badge/devel%20version-1.1.0-green.svg"></a></li>
 <li><a href="https://cran.r-project.org/web/licenses/GPL-3" class="external-link"><img src="https://img.shields.io/badge/license-GPL--3-blue.svg" alt="License: GPL-3"></a></li>
-<li><a href="https://codecov.io/gh/bharathananth/compareRhythms" class="external-link"><img src="https://codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg"></a></li>
+<li><a href="https://app.codecov.io/gh/bharathananth/compareRhythms" class="external-link"><img src="https://codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg"></a></li>
 <li><a href="https://doi.org/10.1111/febs.16095" class="external-link"><img src="https://img.shields.io/badge/doi-10.1111/febs.16095-yellow.svg"></a></li>
 <li><a href="https://zenodo.org/badge/latestdoi/314899899" class="external-link"><img src="https://zenodo.org/badge/314899899.svg" alt="DOI"></a></li>
