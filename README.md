@@ -5,10 +5,18 @@
 
 <!-- badges: start -->
 
-[![](https://img.shields.io/badge/devel%20version-1.0.2-green.svg)](https://github.com/compareRhythms)
+    #> Warning: `git_branch_default()` was deprecated in usethis 2.1.0.
+    #> ℹ Please use `git_default_branch()` instead.
+    #> ℹ The deprecated feature was likely used in the badger package.
+    #>   Please report the issue at <https://github.com/GuangchuangYu/badger/issues>.
+    #> This warning is displayed once every 8 hours.
+    #> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    #> generated.
+
+[![](https://img.shields.io/badge/devel%20version-1.1.0-green.svg)](https://github.com/compareRhythms)
 [![License:
 GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-project.org/web/licenses/GPL-3)
-[![](https://codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg)](https://codecov.io/gh/bharathananth/compareRhythms)
+[![](https://codecov.io/gh/bharathananth/compareRhythms/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bharathananth/compareRhythms)
 [![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![](https://img.shields.io/badge/doi-10.1111/febs.16095-yellow.svg)](https://doi.org/10.1111/febs.16095)
 [![DOI](https://zenodo.org/badge/314899899.svg)](https://zenodo.org/badge/latestdoi/314899899)
