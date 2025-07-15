@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">compareRhythms</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,6 +131,19 @@ amplitude and phase estimates of each differential rhythmic feature in
 the two groups (<code>just_classify = FALSE</code>) must be returned in
 addition to the list of <code>id</code>s and their classification into
 the differential rhythmicity categories.</p></li>
+</ul>
+<p>There is one parameter available only to
+<code>method = "limma"/"voom"/"deseq2"/"edger"</code>.</p>
+<ul>
+<li>
+<code>just_rhythms</code> : This boolean flag specifies if
+differential expression analysis should be performed alongside
+differential rhythmicity analysis (<code>just_rhythms = FALSE</code>).
+In other words, whether the magnitude of expression of features should
+also be compared across groups. Note, the statistical cutoff
+<code>rhythm_fdr</code> is also used for differential expression. This
+flag can be combined with <code>just_classify</code> to return fold
+change in expression and adjusted p-value for the comparison.</li>
 </ul>
 <p>The different approaches can be divided into model selection and the
 rest that are all implementations of hypothesis testing:</p>
@@ -562,11 +575,54 @@ performed using a single test, whose adjusted p-value is returned. The
 differential rhythmicity test compares circadian parameters (as
 coefficients of a harmonic regression) between the two groups. The
 boolean columns are constructed (as before) using these p-values.
-Moreover, due to the similarity of approaches the results of the
+Moreover, due to the similarity of approaches, the results of the
 analyses are very similar.</p>
+<p>We are often interested in comparing and contrasting features that
+are differentially rhythmic with those that are differential expressed
+across the two groups. The results for differential expression can be
+returned additionally by <code><a href="../reference/compareRhythms.html">compareRhythms()</a></code> by setting the
+<code>just_rhythms = FALSE</code> (by default set to <code>TRUE</code>).
+The classification of features by expression is provided in column
+<code>category_DE</code>. If <code>just_classify = FALSE</code> is also
+set, then the changes in expression between groups and their adjusted
+p-values are also included in the returned results. Note, a feature is
+classified as <code>NA</code> if either it is not differentially
+expressed or was not considered rhythmic in either group.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compareRhythms.html">compareRhythms</a></span><span class="op">(</span><span class="va">expr_filtered</span>, exp_design <span class="op">=</span> <span class="va">exp_design</span>, period <span class="op">=</span> <span class="fl">24</span>, </span>
+<span>                          method <span class="op">=</span> <span class="st">"limma"</span>, just_rhythms <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co"># run with default parameters</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                   id category rhythmic_in_NC rhythmic_in_HFD diff_rhythmic</span></span>
+<span><span class="co">#&gt; 1 ENSMUSG00000000049     &lt;NA&gt;             NA              NA            NA</span></span>
+<span><span class="co">#&gt; 2 ENSMUSG00000000056     same           TRUE            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 3 ENSMUSG00000000085     &lt;NA&gt;             NA              NA            NA</span></span>
+<span><span class="co">#&gt; 4 ENSMUSG00000000134     &lt;NA&gt;             NA              NA            NA</span></span>
+<span><span class="co">#&gt; 5 ENSMUSG00000000149     &lt;NA&gt;             NA              NA            NA</span></span>
+<span><span class="co">#&gt; 6 ENSMUSG00000000154     &lt;NA&gt;             NA              NA            NA</span></span>
+<span><span class="co">#&gt;   category_DE</span></span>
+<span><span class="co">#&gt; 1      up-reg</span></span>
+<span><span class="co">#&gt; 2        &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3    down-reg</span></span>
+<span><span class="co">#&gt; 4    down-reg</span></span>
+<span><span class="co">#&gt; 5      up-reg</span></span>
+<span><span class="co">#&gt; 6    down-reg</span></span></code></pre></div>
+<p>With these results, we can also compare features that are
+differentially rhythmic to those that are differentially expressed.
+Although a core set of genes are differentially rhythmic and
+differentially expressed, many more genes are altered only in their
+expression or rhythmicity.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/xtabs.html" class="external-link">xtabs</a></span><span class="op">(</span><span class="op">~</span><span class="va">category</span> <span class="op">+</span> <span class="va">category_DE</span>, data<span class="op">=</span><span class="va">results</span>, addNA <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>   <span class="co"># number of genes in the different categories</span></span>
+<span><span class="co">#&gt;         category_DE</span></span>
+<span><span class="co">#&gt; category down-reg up-reg &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   change        8     16   22</span></span>
+<span><span class="co">#&gt;   gain          3      1    5</span></span>
+<span><span class="co">#&gt;   loss          4      8   21</span></span>
+<span><span class="co">#&gt;   same        177    188  660</span></span>
+<span><span class="co">#&gt;   &lt;NA&gt;       1222    896    0</span></span></code></pre></div>
 <p>We can also vary the parameters <code>amp_cutoff</code>,
 <code>compare_fdr</code> and <code>rhythm_fdr</code> as necessary.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compareRhythms.html">compareRhythms</a></span><span class="op">(</span><span class="va">expr_filtered</span>, exp_design <span class="op">=</span> <span class="va">exp_design</span>, period <span class="op">=</span> <span class="fl">24</span>, </span>
 <span>                          method <span class="op">=</span> <span class="st">"limma"</span>, just_classify <span class="op">=</span> <span class="cn">TRUE</span>, amp_cutoff <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">category</span><span class="op">)</span></span>
@@ -595,12 +651,12 @@ experimental design <span class="citation">(Quagliarini et al.
 2019)</span>. This data too is provided with this package as a 37310x36
 matrix called <code>high_fat_diet_rnaseq</code>. We follow a similar
 sequence of steps as for microarrays in Example 1.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bharathananth/compareRhythms" class="external-link">compareRhythms</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioinf.wehi.edu.au/edgeR/" class="external-link">edgeR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/thelovelab/DESeq2" class="external-link">DESeq2</a></span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">high_fat_diet_rnaseq</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                      HFD_ZT0_1 HFD_ZT0_2 HFD_ZT0_3 HFD_ZT4_1 HFD_ZT4_2</span></span>
 <span><span class="co">#&gt; ENSMUSG00000090025.1         0         0         0         0         0</span></span>
@@ -629,7 +685,7 @@ sequence of steps as for microarrays in Example 1.</p>
 <p>We will next construct the data.frame of the experimental design from
 the data column names. As before, we fix “NC” to be the reference level
 for <em>factor</em> group column.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exp_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_split.html" class="external-link">str_split</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">high_fat_diet_rnaseq</span><span class="op">)</span>, <span class="st">"_"</span>, simplify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>     <span class="co"># split the names by _</span></span>
 <span><span class="va">exp_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">exp_design</span>, stringsAsFactors<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>    <span class="co"># convert from matrix to data.frame</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">exp_design</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"group"</span>, <span class="st">"time"</span>, <span class="st">"rep"</span><span class="op">)</span>    <span class="co"># name the columns</span></span>
@@ -655,7 +711,7 @@ sufficiently <em>expressed</em> genes. We will used a convenient
 function <code><a href="https://rdrr.io/pkg/edgeR/man/filterByExpr.html" class="external-link">filterByExpr()</a></code> in <a href="https://doi.org/10.18129/B9.bioc.edgeR" class="external-link">edgeR</a> to select genes
 that have sufficiently expression (20 counts at the median library size
 in 70% of the samples in each group).</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">keep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/filterByExpr.html" class="external-link">filterByExpr</a></span><span class="op">(</span><span class="va">high_fat_diet_rnaseq</span>, group <span class="op">=</span> <span class="va">exp_design</span><span class="op">$</span><span class="va">group</span>, min.count<span class="op">=</span><span class="fl">20</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">keep</span><span class="op">)</span>   <span class="co"># view the number of genes retained.</span></span>
 <span><span class="co">#&gt; keep</span></span>
@@ -665,7 +721,7 @@ in 70% of the samples in each group).</p>
 <p>At this point, we would like to ensure that there are no outlier
 samples. We are using the utilities provided by edgeR but you can use
 the steps in the <a href="">DESeq2 vignette</a> instead.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y_explore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/DGEList.html" class="external-link">DGEList</a></span><span class="op">(</span>counts<span class="op">=</span><span class="va">counts</span>, group <span class="op">=</span> <span class="va">exp_design</span><span class="op">$</span><span class="va">group</span><span class="op">)</span></span>
 <span><span class="va">y_explore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/calcNormFactors.html" class="external-link">calcNormFactors</a></span><span class="op">(</span><span class="va">y_explore</span><span class="op">)</span></span>
 <span><span class="va">mdsscale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/limma/man/plotMDS.html" class="external-link">plotMDS</a></span><span class="op">(</span><span class="va">y_explore</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -680,7 +736,7 @@ the steps in the <a href="">DESeq2 vignette</a> instead.</p>
 <p><img src="UserGuide_files/figure-html/MDS-1.png" width="384" style="display: block; margin: auto;"></p>
 <p>The samples appear to separate into the two diet groups. A ZT12
 sample under NC is likely an outlier.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">X</span><span class="op">)</span>    <span class="co"># find sample with the largest X deviation (our outlier)</span></span>
 <span><span class="va">counts_no_outlier</span> <span class="op">&lt;-</span> <span class="va">counts</span><span class="op">[</span>, <span class="op">-</span><span class="va">ind</span><span class="op">]</span>   <span class="co"># remove that sample</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">counts_no_outlier</span><span class="op">)</span></span>
@@ -690,13 +746,13 @@ sample under NC is likely an outlier.</p>
 <p>The experimental design now does not match the count matrix after we
 removed the outlier. We have to also remove this sample from the
 exp_design.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exp_design_no_outlier</span> <span class="op">&lt;-</span> <span class="va">exp_design</span><span class="op">[</span><span class="op">-</span><span class="va">ind</span>, <span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">exp_design_no_outlier</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">counts_no_outlier</span><span class="op">)</span>   <span class="co">#input-check</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>Now, the data is ready for <code>compareRhythms</code>. We can use
 the <em>voom</em>, <em>DESeq2</em> or <em>edgeR</em>.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compareRhythms.html">compareRhythms</a></span><span class="op">(</span><span class="va">counts_no_outlier</span>, <span class="va">exp_design_no_outlier</span>, method <span class="op">=</span> <span class="st">"voom"</span><span class="op">)</span>  <span class="co"># with default parameters</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">results1</span><span class="op">$</span><span class="va">category</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -715,7 +771,7 @@ the <em>voom</em>, <em>DESeq2</em> or <em>edgeR</em>.</p>
 <p>The <em>voom</em> analysis can take care of outlier samples (without
 removing the outlier samples) by setting <code>outliers=TRUE</code>.
 This is generally more powerful than removing the outlier sample.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compareRhythms.html">compareRhythms</a></span><span class="op">(</span><span class="va">counts</span>, <span class="va">exp_design</span>, method <span class="op">=</span> <span class="st">"voom"</span>, outliers <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># with default parameters</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">results4</span><span class="op">$</span><span class="va">category</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -724,11 +780,42 @@ This is generally more powerful than removing the outlier sample.</p>
 <p>Of course, these hypothesis-testing based methods can be fine tuned
 by changing <code>compare_fdr</code>, <code>rhythm_fdr</code> and
 <code>amp_cutoff</code>.</p>
+<p>As with the microarray analysis, we can also compare the expression
+level of the genes across groups (using <code>just_rhythms</code>) to
+contrast significantly differential expressed and differentially
+rhythmic genes.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">results5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compareRhythms.html">compareRhythms</a></span><span class="op">(</span><span class="va">counts_no_outlier</span>, <span class="va">exp_design_no_outlier</span>, method <span class="op">=</span> <span class="st">"voom"</span>, just_rhythms <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/xtabs.html" class="external-link">xtabs</a></span><span class="op">(</span><span class="op">~</span><span class="va">category</span> <span class="op">+</span> <span class="va">category_DE</span>, data<span class="op">=</span><span class="va">results5</span>, addNA <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         category_DE</span></span>
+<span><span class="co">#&gt; category down-reg up-reg &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   change        0      4   20</span></span>
+<span><span class="co">#&gt;   loss          1      2    2</span></span>
+<span><span class="co">#&gt;   same        242    370 1894</span></span>
+<span><span class="co">#&gt;   &lt;NA&gt;        928   1199    0</span></span>
+<span><span class="va">results6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compareRhythms.html">compareRhythms</a></span><span class="op">(</span><span class="va">counts_no_outlier</span>, <span class="va">exp_design_no_outlier</span>, method <span class="op">=</span> <span class="st">"deseq2"</span>, just_rhythms <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/xtabs.html" class="external-link">xtabs</a></span><span class="op">(</span><span class="op">~</span><span class="va">category</span> <span class="op">+</span> <span class="va">category_DE</span>, data<span class="op">=</span><span class="va">results6</span>, addNA <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         category_DE</span></span>
+<span><span class="co">#&gt; category down-reg up-reg &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   change        7     16   45</span></span>
+<span><span class="co">#&gt;   gain          2      6    9</span></span>
+<span><span class="co">#&gt;   loss          4      3    9</span></span>
+<span><span class="co">#&gt;   same        342    416 2031</span></span>
+<span><span class="co">#&gt;   &lt;NA&gt;       1160   1184    0</span></span>
+<span><span class="va">results7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compareRhythms.html">compareRhythms</a></span><span class="op">(</span><span class="va">counts_no_outlier</span>, <span class="va">exp_design_no_outlier</span>, method <span class="op">=</span> <span class="st">"edger"</span>, just_rhythms <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/xtabs.html" class="external-link">xtabs</a></span><span class="op">(</span><span class="op">~</span><span class="va">category</span> <span class="op">+</span> <span class="va">category_DE</span>, data<span class="op">=</span><span class="va">results7</span>, addNA <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         category_DE</span></span>
+<span><span class="co">#&gt; category down-reg up-reg &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;   change        1      3   16</span></span>
+<span><span class="co">#&gt;   gain          0      0    1</span></span>
+<span><span class="co">#&gt;   loss          1      1    2</span></span>
+<span><span class="co">#&gt;   same        276    385 1981</span></span>
+<span><span class="co">#&gt;   &lt;NA&gt;       1049   1136    0</span></span></code></pre></div>
 <p>It is also possible to process this data using model selection after
 the data are normalized. We use the tools in <em>edgeR</em> to compute
 the normalized log counts per million expression of the data and then
 apply model selection as in Example 1.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/DGEList.html" class="external-link">DGEList</a></span><span class="op">(</span><span class="va">counts_no_outlier</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/calcNormFactors.html" class="external-link">calcNormFactors</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="va">results5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compareRhythms.html">compareRhythms</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/edgeR/man/cpm.html" class="external-link">cpm</a></span><span class="op">(</span><span class="va">y</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="va">exp_design_no_outlier</span>, method <span class="op">=</span> <span class="st">"mod_sel"</span><span class="op">)</span>  <span class="co"># with default parameters</span></span>
@@ -773,7 +860,7 @@ apply model selection as in Example 1.</p>
 <span><span class="co">#&gt; [17] dplyr_1.1.4                 purrr_1.1.0                </span></span>
 <span><span class="co">#&gt; [19] readr_2.1.5                 tidyr_1.3.1                </span></span>
 <span><span class="co">#&gt; [21] tibble_3.3.0                ggplot2_3.5.2              </span></span>
-<span><span class="co">#&gt; [23] tidyverse_2.0.0             compareRhythms_1.1.0       </span></span>
+<span><span class="co">#&gt; [23] tidyverse_2.0.0             compareRhythms_1.5.0       </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] tidyselect_1.2.1        DODR_0.99.2             farver_2.1.2           </span></span>
