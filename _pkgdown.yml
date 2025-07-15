@@ -12,7 +12,7 @@ navbar:
   components:
     articles:
       text: User guide
-      href: articles/UserGuide_manual.html
+      href: articles/UserGuide.html
 
 reference:
   - title: "Main function"

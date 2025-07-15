@@ -1,7 +1,7 @@
 ---
 title: "Analyzing rhythmic data with compareRhythms"
 author: Bharath Ananthasubramaniam
-date: 02 Jun 2022
+date: 15 Jul 2025
 output: 
   rmarkdown::html_vignette:
     self_contained: true
