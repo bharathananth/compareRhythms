@@ -47,6 +47,10 @@ There are three parameters that are common to all methods.
 
 - `just_classify` : This boolean flag specifies if the amplitude and phase estimates of each differential rhythmic feature in the two groups (`just_classify = FALSE`) must be returned in addition to the list of `id`s and their classification into the differential rhythmicity categories.
 
+There is one parameter available only to `method = "limma"/"voom"/"deseq2"/"edger"`.
+
+- `just_rhythms` : This boolean flag specifies if differential expression analysis should be performed alongside differential rhythmicity analysis (`just_rhythms = FALSE`). In other words, whether the magnitude of expression of features should also be compared across groups. Note, the statistical cutoff `rhythm_fdr` is also used for differential expression. This flag can be combined with `just_classify` to return fold change in expression and adjusted p-value for the comparison.
+
 The different approaches can be divided into model selection and the rest that are all implementations of hypothesis testing:
 
 1. **Model selection** (`method = "mod_sel"` (default))
@@ -210,10 +214,24 @@ results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24,
 head(results)
 table(results$category)   # number of genes in the different categories
 ```
-The returned columns are similar to that from *DODR* (as they are both based on the same hypothesis testing approach). The only difference is that the test for rhythmicity in either group can performed using a single test, whose adjusted p-value is returned. The differential rhythmicity test compares circadian parameters (as coefficients of a harmonic regression) between the two groups. The boolean columns are constructed (as before) using these p-values. Moreover, due to the similarity of approaches the results of the analyses are very similar.
+The returned columns are similar to that from *DODR* (as they are both based on the same hypothesis testing approach). The only difference is that the test for rhythmicity in either group can performed using a single test, whose adjusted p-value is returned. The differential rhythmicity test compares circadian parameters (as coefficients of a harmonic regression) between the two groups. The boolean columns are constructed (as before) using these p-values. Moreover, due to the similarity of approaches, the results of the analyses are very similar.
+
+We are often interested in comparing and contrasting features that are differentially rhythmic with those that are differential expressed across the two groups. The results for differential expression can be returned additionally by `compareRhythms()` by setting the `just_rhythms = FALSE` (by default set to `TRUE`). The classification of features by expression is provided in column `category_DE`. If `just_classify = FALSE` is also set, then the changes in expression between groups and their adjusted p-values are also included in the returned results. Note, a feature is classified as `NA` if either it is not differentially expressed or was not considered rhythmic in either group.
+
+```{r ma-limma-2}
+results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24, 
+                          method = "limma", just_rhythms = FALSE) # run with default parameters
+head(results)
+```
+
+With these results, we can also compare features that are differentially rhythmic to those that are differentially expressed. Although a core set of genes are differentially rhythmic and differentially expressed, many more genes are altered only in their expression or rhythmicity.
+
+```{r ma-limma-3}
+xtabs(~category + category_DE, data=results, addNA = TRUE)   # number of genes in the different categories
+```
 
 We can also vary the parameters `amp_cutoff`, `compare_fdr` and `rhythm_fdr` as necessary.
-```{r ma-limma-2}
+```{r ma-limma-4}
 results <- compareRhythms(expr_filtered, exp_design = exp_design, period = 24, 
                           method = "limma", just_classify = TRUE, amp_cutoff = 0.1)
 table(results$category)
@@ -303,6 +321,17 @@ results4 <- compareRhythms(counts, exp_design, method = "voom", outliers = TRUE)
 table(results4$category)
 ```
 Of course, these hypothesis-testing based methods can be fine tuned by changing `compare_fdr`, `rhythm_fdr` and `amp_cutoff`.
+
+As with the microarray analysis, we can also compare the expression level of the genes across groups (using `just_rhythms`) to contrast significantly differential expressed and differentially rhythmic genes.
+
+```{r run-rnaseq-with-DE, warning=FALSE}
+results5 <- compareRhythms(counts_no_outlier, exp_design_no_outlier, method = "voom", just_rhythms = FALSE)
+xtabs(~category + category_DE, data=results5, addNA = TRUE)
+results6 <- compareRhythms(counts_no_outlier, exp_design_no_outlier, method = "deseq2", just_rhythms = FALSE)
+xtabs(~category + category_DE, data=results6, addNA = TRUE)
+results7 <- compareRhythms(counts_no_outlier, exp_design_no_outlier, method = "edger", just_rhythms = FALSE)
+xtabs(~category + category_DE, data=results7, addNA = TRUE)
+```
 
 It is also possible to process this data using model selection after the data are normalized. We use the tools in *edgeR* to compute the normalized log counts per million expression of the data and then apply model selection as in Example 1.
 ```{r mod-sel-rnaseq}

@@ -1,7 +1,7 @@
 Package: compareRhythms
 Type: Package
 Title: Approaches to identify Differential Rhythmicity
-Version: 1.1.0
+Version: 1.5.0
 Author: Bharath Ananthasubramaniam
 Maintainer: Bharath Ananthasubramaniam <bharath.ananthasubramaniam@hu-berlin.de>
 Description: This package identifies features that have altered rhythms 
