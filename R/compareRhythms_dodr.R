@@ -116,7 +116,7 @@ compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
       B_phase = circ_params_B[rhythmic_in_either, "phases"],
       adj_p_val_A = rain_results$adj_p_val_A[rhythmic_in_either],
       adj_p_val_B = rain_results$adj_p_val_B[rhythmic_in_either],
-      adj_p_val_dodr = dodr_results$adj_p_val
+      adj_p_val_DR = dodr_results$adj_p_val
     )
     results <- base::cbind(results, expand_results)
   }
