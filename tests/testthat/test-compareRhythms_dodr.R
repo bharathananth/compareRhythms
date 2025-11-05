@@ -21,7 +21,7 @@ test_that("DODR analysis works for different input params", {
   expect_s3_class(results, "data.frame")
   expect_named(results,
                c("id", "category", "rhythmic_in_CC", "rhythmic_in_KD", "diff_rhythmic", "CC_amp",
-                 "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC", "adj_p_val_KD", "adj_p_val_dodr"))
+                 "CC_phase", "KD_amp", "KD_phase", "adj_p_val_CC", "adj_p_val_KD", "adj_p_val_DR"))
 })
 
 test_that("RAIN functionality is okay", {

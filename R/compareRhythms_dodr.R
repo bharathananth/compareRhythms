@@ -59,7 +59,7 @@ compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
   expr_A <- expr[, exp_design_A$col_number]
   expr_B <- expr[, exp_design_B$col_number]
 
-  assertthat::assert_that((sum(measure_sequence_A) >= 12) && (sum(measure_sequence_B) >= 12),
+  assertthat::assert_that((sum(measure_sequence_A) >= 8) && (sum(measure_sequence_B) >= 8),
                           msg = "Not enough samples to run RAIN rhythmicity analysis confidently.")
 
   rain_A <- rain::rain(t(expr_A), deltat_A, period,
