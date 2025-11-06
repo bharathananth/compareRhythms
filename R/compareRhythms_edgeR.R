@@ -70,38 +70,41 @@ compareRhythms_edgeR <- function(counts, exp_design, lengths, period,
 
   results <- results[(results$adj_p_val_A_or_B < rhythm_fdr) &
                        (results$max_amp > amp_cutoff), ]
-
-  assertthat::assert_that(assertthat::not_empty(results),
-                          msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
-
   results$max_amp <- NULL
 
-  contrasts <- c(paste0(group_id, "_inphase", collapse = "-"),
-                 paste0(group_id, "_outphase", collapse = "-"))
+  if (dim(results)[1]>0) {
 
-  diff_rhy_contrast <- limma::makeContrasts(contrasts = contrasts,
-                                            levels = design)
+    contrasts <- c(paste0(group_id, "_inphase", collapse = "-"),
+                   paste0(group_id, "_outphase", collapse = "-"))
 
-  diff_rhy_fit <- edgeR::glmQLFTest(fit, contrast = diff_rhy_contrast)
+    diff_rhy_contrast <- suppressWarnings(limma::makeContrasts(contrasts = contrasts,
+                                              levels = design))
 
-  diff_rhy_results <- edgeR::topTags(diff_rhy_fit, n = Inf, sort.by = "none")
+    diff_rhy_fit <- edgeR::glmQLFTest(fit, contrast = diff_rhy_contrast)
 
-  diff_rhy_results <- data.frame(diff_rhy_results)
+    diff_rhy_results <- edgeR::topTags(diff_rhy_fit, n = Inf, sort.by = "none")
 
-  diff_rhy_results <- diff_rhy_results[results$id, ]
+    diff_rhy_results <- data.frame(diff_rhy_results)
 
-  results$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$PValue,
-                                          method = "BH")
-  results$diff_rhythmic <- results$adj_p_val_DR < compare_fdr
+    diff_rhy_results <- diff_rhy_results[results$id, ]
 
-  results$rhythmic_in_A <- results[, paste0(group_id[1], "_amp")] > amp_cutoff
+    results$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$PValue,
+                                            method = "BH")
+    results$diff_rhythmic <- results$adj_p_val_DR < compare_fdr
 
-  results$rhythmic_in_B <- results[, paste0(group_id[2], "_amp")] > amp_cutoff
+    results$rhythmic_in_A <- results[, paste0(group_id[1], "_amp")] > amp_cutoff
 
-  results$category <- base::mapply(categorize,
-                                   results$rhythmic_in_A,
-                                   results$rhythmic_in_B,
-                                   results$diff_rhythmic)
+    results$rhythmic_in_B <- results[, paste0(group_id[2], "_amp")] > amp_cutoff
+
+    results$category <- base::mapply(categorize,
+                                     results$rhythmic_in_A,
+                                     results$rhythmic_in_B,
+                                     results$diff_rhythmic)
+  } else {
+    warning("Sorry no rhythmic genes in either dataset for the thresholds provided.")
+    results <- data.frame(id = character(0), category = character(0), diff_rhythmic = logical(0),
+                          rhythmic_in_A = logical(0), rhythmic_in_B = logical(0))
+  }
 
   main_cols <- c("id", "category", "rhythmic_in_A", "rhythmic_in_B",
                  "diff_rhythmic")

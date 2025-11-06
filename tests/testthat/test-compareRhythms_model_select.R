@@ -39,5 +39,5 @@ test_that("model selection runs for arrhythmic dataset", {
   y_null <- matrix(0, nrow = dim_y[1], ncol = dim_y[2])
   colnames(y_null) <- colnames(expr)
   rownames(y_null) <- rownames(expr)
-  expect_error(compareRhythms(y_null, exp_design, method = "mod_sel"))
+  expect_warning(compareRhythms(y_null, exp_design, method = "mod_sel"))
 })

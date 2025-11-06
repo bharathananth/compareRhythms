@@ -30,7 +30,7 @@ test_that("edger analysis works for different input params", {
   expect_s3_class(compareRhythms(counts, exp_design, lengths = lengths, compare_fdr = 0.01, method = "edger"), "data.frame")
   expect_s3_class(compareRhythms(counts, exp_design, lengths = lengths, rhythm_fdr = 0.1, compare_fdr = 0.01, method = "edger"), "data.frame")
   expect_s3_class(compareRhythms(counts, exp_design, lengths = lengths, amp_cutoff = 0, method = "edger"), "data.frame")
-  expect_error(compareRhythms(counts, exp_design, lengths = lengths, rhythm_fdr = 0, method = "edger"))
+  expect_warning(compareRhythms(counts, exp_design, lengths = lengths, rhythm_fdr = 0, method = "edger"))
   results <- compareRhythms(counts, exp_design, lengths = lengths, just_classify = FALSE, method = "edger")
   expect_s3_class(results, "data.frame")
   expect_named(results,
@@ -78,4 +78,11 @@ test_that("edger analysis works for different input params with batch", {
                c("id", "category", "rhythmic_in_P66KO", "rhythmic_in_WT", "diff_rhythmic", "category_DE",
                  "P66KO_amp", "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR", "logFC_DE", "adj_p_val_DE"))
+})
+
+load("test_data_norhy.rda")
+
+test_that("edger analysis works for non-rhythmic data", {
+  expect_equal(nrow(expect_warning(compareRhythms(counts_norhythm, exp_design_norhythm, method="edger"))), 0)
+  expect_s3_class(expect_warning(compareRhythms(counts_norhythm, exp_design_norhythm, method="edger")), "data.frame")
 })

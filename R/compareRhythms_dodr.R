@@ -85,42 +85,45 @@ compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
 
   rhythmic_in_either <- rhythmic_in_A | rhythmic_in_B
 
-  assertthat::assert_that(sum(rhythmic_in_either) > 0,
-                          msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
+  if (sum(rhythmic_in_either) > 0) {
 
-  dodr_results <- DODR::robustDODR(t(expr_A[rhythmic_in_either, ]),
-                                   t(expr_B[rhythmic_in_either, ]),
-                                   times1 = exp_design_A$time,
-                                   times2 = exp_design_B$time,
-                                   norm = TRUE,
-                                   period = period)
-  dodr_results$adj_p_val <- stats::p.adjust(dodr_results$p.value, method = "BH")
+    dodr_results <- DODR::robustDODR(t(expr_A[rhythmic_in_either, ]),
+                                     t(expr_B[rhythmic_in_either, ]),
+                                     times1 = exp_design_A$time,
+                                     times2 = exp_design_B$time,
+                                     norm = TRUE,
+                                     period = period)
+    dodr_results$adj_p_val <- stats::p.adjust(dodr_results$p.value, method = "BH")
 
-  results <- data.frame(id = rownames(expr_A)[rhythmic_in_either],
-                        rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
-                        rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
-                        diff_rhythmic = dodr_results$adj_p_val < compare_fdr,
-                        stringsAsFactors = FALSE)
+    results <- data.frame(id = rownames(expr_A)[rhythmic_in_either],
+                          rhythmic_in_A = rhythmic_in_A[rhythmic_in_either],
+                          rhythmic_in_B = rhythmic_in_B[rhythmic_in_either],
+                          diff_rhythmic = dodr_results$adj_p_val < compare_fdr,
+                          stringsAsFactors = FALSE)
 
-  results$category <- base::mapply(categorize,
-                                results$rhythmic_in_A,
-                                results$rhythmic_in_B,
-                                results$diff_rhythmic)
-  results <- results[, c(1, 5, 2, 3, 4)]
+    results$category <- base::mapply(categorize,
+                                     results$rhythmic_in_A,
+                                     results$rhythmic_in_B,
+                                     results$diff_rhythmic)
+    results <- results[, c(1, 5, 2, 3, 4)]
 
-  if (!just_classify) {
-    expand_results <- data.frame(
-      A_amp = circ_params_A[rhythmic_in_either, "amps"],
-      A_phase = circ_params_A[rhythmic_in_either, "phases"],
-      B_amp = circ_params_B[rhythmic_in_either, "amps"],
-      B_phase = circ_params_B[rhythmic_in_either, "phases"],
-      adj_p_val_A = rain_results$adj_p_val_A[rhythmic_in_either],
-      adj_p_val_B = rain_results$adj_p_val_B[rhythmic_in_either],
-      adj_p_val_DR = dodr_results$adj_p_val
-    )
-    results <- base::cbind(results, expand_results)
+    if (!just_classify) {
+      expand_results <- data.frame(
+        A_amp = circ_params_A[rhythmic_in_either, "amps"],
+        A_phase = circ_params_A[rhythmic_in_either, "phases"],
+        B_amp = circ_params_B[rhythmic_in_either, "amps"],
+        B_phase = circ_params_B[rhythmic_in_either, "phases"],
+        adj_p_val_A = rain_results$adj_p_val_A[rhythmic_in_either],
+        adj_p_val_B = rain_results$adj_p_val_B[rhythmic_in_either],
+        adj_p_val_DR = dodr_results$adj_p_val
+      )
+      results <- base::cbind(results, expand_results)
+    }
+  } else {
+    warning("Sorry no rhythmic genes in either dataset for the thresholds provided.")
+    results <- data.frame(id = character(0), category = character(0), diff_rhythmic = logical(0),
+                          rhythmic_in_A = logical(0), rhythmic_in_B = logical(0))
   }
-
   rownames(results) <- NULL
   colnames(results) <- gsub("A", group_id[1], colnames(results))
   colnames(results) <- gsub("B", group_id[2], colnames(results))

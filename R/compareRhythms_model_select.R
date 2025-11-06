@@ -64,58 +64,61 @@ compareRhythms_model_select <- function(data, exp_design, period,
 
   model_assignment <- model_selection$pref[model_post_prob >= schwarz_wt_cutoff]
 
-  assertthat::assert_that(assertthat::not_empty(model_assignment),
-                          msg = "Sorry no rhythmic genes in either dataset for the thresholds provided.")
+  if (!all(is.na(model_assignment))) {
+    model_circ_params <- base::lapply(design_list[-1],
+                                      function(d) compute_model_params(data, group_id, d))
 
-  model_circ_params <- base::lapply(design_list[-1],
-                              function(d) compute_model_params(data, group_id, d))
+    model_circ_params[["arrhy"]] <- matrix(0, nrow = nrow(data), ncol = 4,
+                                           dimnames = dimnames(model_circ_params[["same"]]))
 
-  model_circ_params[["arrhy"]] <- matrix(0, nrow = nrow(data), ncol = 4,
-                                       dimnames = dimnames(model_circ_params[["same"]]))
+    circ_params <- base::vapply(names(model_assignment),
+                                function(nm) {
+                                  model_circ_params[[base::as.character(model_assignment[nm])]][nm, ]
+                                },
+                                FUN.VALUE = double(4))
 
-  circ_params <- base::vapply(names(model_assignment),
-                              function(nm) {
-                                model_circ_params[[base::as.character(model_assignment[nm])]][nm, ]
-                              },
-                              FUN.VALUE = double(4))
+    results <- data.frame(t(circ_params), stringsAsFactors = FALSE)
+    results <- base::cbind(id = names(model_assignment),
+                           results,
+                           category = unname(model_assignment),
+                           stringsAsFactors=FALSE)
 
-  results <- data.frame(t(circ_params), stringsAsFactors = FALSE)
-  results <- base::cbind(id = names(model_assignment),
-                         results,
-                         category = unname(model_assignment),
-                         stringsAsFactors=FALSE)
+    results$max_amp <- pmax(results[, paste0(group_id[1], "_amp")],
+                            results[, paste0(group_id[2], "_amp")])
 
-  results$max_amp <- pmax(results[, paste0(group_id[1], "_amp")],
-                          results[, paste0(group_id[2], "_amp")])
+    results$weights <- model_post_prob[model_post_prob >= schwarz_wt_cutoff]
 
-  results$weights <- model_post_prob[model_post_prob >= schwarz_wt_cutoff]
-
-  for (i in seq(nrow(results))) {
-    if (results$max_amp[i] < amp_cutoff) {
-      results[i, "category"] <- "arrhy"
-      results[i, paste0(group_id[1], "_amp")] <- 0
-      results[i, paste0(group_id[1], "_phase")] <- 0
-      results[i, paste0(group_id[2], "_amp")] <- 0
-      results[i, paste0(group_id[2], "_phase")] <- 0
-    } else if (results[i, "category"] == "change") {
-      if (results[i, paste0(group_id[2], "_amp")] < amp_cutoff) {
-        results[i, "category"] == "loss"
-        results[i, paste0(group_id[2], "_amp")] <- 0
-        results[i, paste0(group_id[2], "_phase")] <- 0
-      }
-
-      if (results[i, paste0(group_id[1], "_amp")] < amp_cutoff) {
-        results[i, "category"] == "gain"
+    for (i in seq(nrow(results))) {
+      if (results$max_amp[i] < amp_cutoff) {
+        results[i, "category"] <- "arrhy"
         results[i, paste0(group_id[1], "_amp")] <- 0
         results[i, paste0(group_id[1], "_phase")] <- 0
+        results[i, paste0(group_id[2], "_amp")] <- 0
+        results[i, paste0(group_id[2], "_phase")] <- 0
+      } else if (results[i, "category"] == "change") {
+        if (results[i, paste0(group_id[2], "_amp")] < amp_cutoff) {
+          results[i, "category"] == "loss"
+          results[i, paste0(group_id[2], "_amp")] <- 0
+          results[i, paste0(group_id[2], "_phase")] <- 0
+        }
+
+        if (results[i, paste0(group_id[1], "_amp")] < amp_cutoff) {
+          results[i, "category"] == "gain"
+          results[i, paste0(group_id[1], "_amp")] <- 0
+          results[i, paste0(group_id[1], "_phase")] <- 0
+        }
       }
     }
-  }
 
-  results$max_amp <- NULL
-  rownames(results) <- NULL
-  colnames(results) <- gsub("A", group_id[1], colnames(results))
-  colnames(results) <- gsub("B", group_id[2], colnames(results))
+    results$max_amp <- NULL
+    rownames(results) <- NULL
+    colnames(results) <- gsub("A", group_id[1], colnames(results))
+    colnames(results) <- gsub("B", group_id[2], colnames(results))
+
+  } else {
+    warning("Sorry no rhythmic genes in either dataset for the thresholds provided.")
+    results <- data.frame(id = character(0), category = character(0))
+  }
 
   main_cols <- c("id", "category")
   if (just_classify) {

@@ -23,7 +23,7 @@ test_that("limma-voom analysis works for different input params", {
   expect_s3_class(compareRhythms(countsFromAbundance, exp_design, compare_fdr = 0.01, method = "voom"), "data.frame")
   expect_s3_class(compareRhythms(countsFromAbundance, exp_design, rhythm_fdr = 0.1, compare_fdr = 0.01, method = "voom"), "data.frame")
   expect_s3_class(compareRhythms(countsFromAbundance, exp_design, amp_cutoff = 0, method = "voom"), "data.frame")
-  expect_error(compareRhythms(countsFromAbundance, exp_design, rhythm_fdr = 0, method = "voom"))
+  expect_warning(compareRhythms(countsFromAbundance, exp_design, rhythm_fdr = 0, method = "voom"))
   results <- compareRhythms(countsFromAbundance, exp_design, just_classify = FALSE, method = "voom")
   expect_s3_class(results, "data.frame")
   expect_named(results,
@@ -50,7 +50,7 @@ test_that("limma-voom analysis works for different input params with batch", {
   expect_s3_class(compareRhythms(countsFromAbundance, exp_design_batch, compare_fdr = 0.01, method = "voom"), "data.frame")
   expect_s3_class(compareRhythms(countsFromAbundance, exp_design_batch, rhythm_fdr = 0.1, compare_fdr = 0.01, method = "voom"), "data.frame")
   expect_s3_class(compareRhythms(countsFromAbundance, exp_design_batch, amp_cutoff = 0, method = "voom"), "data.frame")
-  expect_error(compareRhythms(countsFromAbundance, exp_design_batch, rhythm_fdr = 0, method = "voom"))
+  expect_warning(compareRhythms(countsFromAbundance, exp_design_batch, rhythm_fdr = 0, method = "voom"))
   results <- compareRhythms(countsFromAbundance, exp_design_batch, just_classify = FALSE, method = "voom")
   expect_s3_class(results, "data.frame")
   expect_named(results,
@@ -69,4 +69,11 @@ test_that("limma-voom analysis works for different input params with batch", {
                  "P66KO_phase", "WT_amp", "WT_phase", "adj_p_val_P66KO_or_WT",
                  "adj_p_val_DR", "logFC_DE", "adj_p_val_DE"))
 
+})
+
+load("test_data_norhy.rda")
+
+test_that("limma-voom analysis works for non-rhythmic data", {
+  expect_equal(nrow(expect_warning(compareRhythms(counts_norhythm, exp_design_norhythm, method="voom"))), 0)
+  expect_s3_class(expect_warning(compareRhythms(counts_norhythm, exp_design_norhythm, method="voom")), "data.frame")
 })
