@@ -1,4 +1,4 @@
-#' Run differential rhythmicity analysis for microarray using limma
+#' Run differential rhythmicity analysis for normalized data using linear mixed effect model (lme4)
 #'
 #' @param data A matrix of expression values with gene in the rows and samples in columns
 #' @inheritParams compareRhythms

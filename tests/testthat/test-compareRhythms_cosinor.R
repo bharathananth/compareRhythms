@@ -31,7 +31,10 @@ test_that("cosinor analysis runs for arrhythmic dataset", {
   expect_error(compareRhythms(y_null, exp_design, method = "cosinor"))
 })
 
-exp_design <- dplyr::mutate(dplyr::group_by(exp_design, group, time), ID = dplyr::row_number())
+exp_design <- transform(exp_design,
+                        ID = ave(seq_len(nrow(exp_design)),
+                        group, time,
+                        FUN = seq_along))
 exp_design$ID <- factor(exp_design$ID)
 
 test_that("longitudinal cosinor analysis works for default params and independent sampling", {
