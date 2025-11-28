@@ -1,9 +1,7 @@
 #' Run differential rhythmicity analysis for normalized data using linear mixed effect model (lme4)
 #'
-#' @param data A matrix of expression values with gene in the rows and samples in columns
 #' @inheritParams compareRhythms
 #' @keywords internal
-#' @export
 
 compareRhythms_cosinor <- function(data, exp_design, period, rhythm_fdr,
                                  compare_fdr, amp_cutoff, just_classify, longitudinal) {
