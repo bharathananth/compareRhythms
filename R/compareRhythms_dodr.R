@@ -93,6 +93,10 @@ compareRhythms_dodr <- function(expr, exp_design, period=24, rhythm_fdr = 0.05,
                                      times2 = exp_design_B$time,
                                      norm = TRUE,
                                      period = period)
+    dodr_results$p.value <- replace(dodr_results$p.value,
+                                    is.na(dodr_results$p.value),
+                                    1.0)
+
     dodr_results$adj_p_val <- stats::p.adjust(dodr_results$p.value, method = "BH")
 
     results <- data.frame(id = rownames(expr_A)[rhythmic_in_either],
