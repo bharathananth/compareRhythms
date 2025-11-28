@@ -9,6 +9,5 @@ Meta
 man/
 data-raw/
 *.svg
-R/data.R
 pkgdown/
 
