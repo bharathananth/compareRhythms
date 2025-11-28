@@ -12,7 +12,7 @@ GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://cran.r-pro
 [![](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![](https://img.shields.io/badge/doi-10.1111/febs.16095-yellow.svg)](https://doi.org/10.1111/febs.16095)
 [![DOI](https://zenodo.org/badge/314899899.svg)](https://zenodo.org/badge/latestdoi/314899899)
-[![R-CMD-check](https://github.com/bharathananth/compareRhythms/actions/workflows/R-CMD-check_pkgdown/badge.svg)](https://github.com/bharathananth/compareRhythms/actions/workflows/R-CMD-check_pkgdown.yaml)
+[![R-CMD-check](https://github.com/bharathananth/compareRhythms/actions/workflows/R-CMD-check_pkgdown.yaml/badge.svg)](https://github.com/bharathananth/compareRhythms/actions/workflows/R-CMD-check_pkgdown.yaml)
 <!-- badges: end -->
 
 The goal of *compareRhythms* is to find features with altered circadian

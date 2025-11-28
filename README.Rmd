@@ -32,7 +32,7 @@ cat(
 )
 ```
 [![DOI](https://zenodo.org/badge/314899899.svg)](https://zenodo.org/badge/latestdoi/314899899)
-[![R-CMD-check](https://github.com/bharathananth/compareRhythms/actions/workflows/R-CMD-check_pkgdown/badge.svg)](https://github.com/bharathananth/compareRhythms/actions/workflows/R-CMD-check_pkgdown.yaml)
+[![R-CMD-check](https://github.com/bharathananth/compareRhythms/actions/workflows/R-CMD-check_pkgdown.yaml/badge.svg)](https://github.com/bharathananth/compareRhythms/actions/workflows/R-CMD-check_pkgdown.yaml)
 <!-- badges: end -->
 
 
