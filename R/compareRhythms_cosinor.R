@@ -12,7 +12,7 @@ compareRhythms_cosinor <- function(data, exp_design, period, rhythm_fdr,
                             inphase = cos(2 * pi * exp_design$time / period),
                             outphase = sin(2 * pi * exp_design$time / period))
 
-  lmer_control <- lme4::lmerControl(check.conv.singular = lme4::.makeCC(action = "ignore", tol = formals(lme4::isSingular)$tol))
+  lmer_control <- lme4::lmerControl(check.conv.singular = lme4::.makeCC(action = "ignore", tol = lme4::getSingTol()))
 
   if ("batch" %in% colnames(exp_design)) {
 
